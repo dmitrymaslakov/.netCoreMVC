@@ -1,27 +1,71 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using NewsGatheringService.Core.Abstract;
+using NewsGatheringService.Data.Entities;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
-using NewsGatheringService.Domain;
-using NewsGatheringService.Domain.Abstract;
+using Serilog;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using NewsCollector.Abstract;
 
 namespace NewsGatheringServiceMVC.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IRepository _db;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEnumerable<News> _news;
+        private readonly ILogger<HomeController> _logger;
+        private readonly INewsService _newsService;
 
-        public HomeController(IRepository db)
+
+        public HomeController(IUnitOfWork unitOfWork, ILogger<HomeController> logger, INewsService newsService)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
+            _news = _unitOfWork.NewsRepository.FindBy(n => n is News, n => n.Category, n => n.Subcategory, n => n.NewsStructure);
+            _logger = logger;
+            _newsService = newsService;
         }
 
-        public IActionResult Index()
+        //[Authorize(Roles = "admin, user")]
+        public async Task<IActionResult> Index()
         {
-            return View(_db.News);
+            try
+            {
+                //return RedirectToAction("Index", "Admin");
+                //return RedirectToAction("Index", "NewsParser");
+                //_newsService.AttemptedToDivideByZero();
+                if (!_news.Any())
+                    await _newsService.GetDataFromRssAndInsertIntoDb();
+
+                return View(_news.OrderByDescending(n => n.Date));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogInformation(ex.Message);
+                _logger.LogWarning(ex.Message);
+                _logger.LogCritical(ex.Message);                
+                return BadRequest();
+            }
+        }
+        public IActionResult IndexDependingOnCategory(string categoryName, string subcategoryName)
+        {
+            try
+            {
+                var newsResult = string.IsNullOrEmpty(categoryName) 
+                    ? _news.Where(n => n.Subcategory!=null && n.Subcategory.Name.Contains(subcategoryName))
+                    : _news.Where(n => n.Category != null && n.Category.Name.Contains(categoryName));
+                return View("Index", newsResult);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest();
+            }
+
         }
     }
 }

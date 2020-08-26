@@ -1,21 +1,21 @@
-﻿using Moq;
+﻿using NewsGatheringService.Core.Abstract;
+using NewsGatheringService.Data.Entities;
 using NewsGatheringService.Domain.Abstract;
+using NewsGatheringService.Domain.Onliner;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace NewsGatheringService.Domain.Concrete
 {
     public class FakeRepository : IRepository
     {
+
         public FakeRepository()
         {
-            var random = new Random();
+            #region MyRegion
+
+            /*var random = new Random();
 
             string dataComments = File.ReadAllText(@"F:\Разное\Учёба\Программирование Си шарп\It-academy\Projects\NewsGatheringService\NewsGatheringService.Domain\StaticFile\Comments.json");
             string dataNews = File.ReadAllText(@"F:\Разное\Учёба\Программирование Си шарп\It-academy\Projects\NewsGatheringService\NewsGatheringService.Domain\StaticFile\News.json");
@@ -100,34 +100,130 @@ namespace NewsGatheringService.Domain.Concrete
                     new Category { Id = new Guid(), Name = "Здоровье"},
                     new Category { Id = new Guid(), Name = "Техника", Subcategories = Subcategories.Skip(12)},
                     new Category { Id = new Guid(), Name = "Отдых"}
+                };*/
+            #endregion
+
+           /* var sourceNewsParser = new ParserWorker<IEnumerable<string>>(new OnlinerNewsUrlSourceParser(), "https://www.onliner.by/");
+            var newsUrlSources = sourceNewsParser.WorkerAsync().Result;
+
+            var newsList = new HashSet<News>();
+            foreach (var newsUrlSource in newsUrlSources)
+            {
+                if (string.IsNullOrEmpty(newsUrlSource)) continue;
+                var newsParser = new ParserWorker<News>(new OnlinerNewsParser(), newsUrlSource);
+                var news = newsParser.WorkerAsync().Result;
+                newsList.Add(news);
+            }
+
+            Category category = null;
+            Subcategory subcategory = null;
+
+            foreach (var newsFromParse in newsList)
+            {
+
+                category = new Category
+                {
+                    Id = Guid.NewGuid(),
+                    Name = newsFromParse.Category.Name
                 };
 
+                if (Categories == null)
+                {
+                    Categories = new HashSet<Category> { category };
+                }
+                else
+                {
+
+                    if (!Categories.Select(c => c.Name).Contains(newsFromParse.Category.Name))
+                        Categories = Categories.Append(category);
+                    else
+                    {
+                        category = Categories.Where(c => c.Name.Equals(category.Name)).FirstOrDefault();
+                    }
+                }
+
+
+                subcategory = new Subcategory
+                {
+                    Id = Guid.NewGuid(),
+                    Name = newsFromParse.Subcategory.Name,
+                    CategoryId = category.Id
+                };
+
+                if (Subcategories == null)
+                {
+                    Subcategories = new HashSet<Subcategory> { subcategory };
+                }
+                else
+                {
+                    if (!Subcategories.Select(c => c.Name).Contains(newsFromParse.Subcategory.Name))
+                        Subcategories = Subcategories.Append(subcategory);
+                    else
+                    {
+                        subcategory = Subcategories.Where(s => s.Name.Equals(subcategory.Name)).FirstOrDefault();
+                    }
+                }
+
+
+                var news = new News
+                {
+                    Id = Guid.NewGuid(),
+                    Author = newsFromParse.Author,
+                    Date = newsFromParse.Date,
+                    NewsHeaderImage = newsFromParse.NewsHeaderImage,
+                    Reputation = newsFromParse.Reputation,
+                    Source = newsFromParse.Source,
+                    CategoryId = category.Id,
+                    SubcategoryId = subcategory.Id
+                };
+                var newsStructure = new NewsStructure
+                {
+                    Id = Guid.NewGuid(),
+                    Headline = newsFromParse.NewsStructure.Headline,
+                    Lead = newsFromParse.NewsStructure.Lead,
+                    Body = newsFromParse.NewsStructure.Body,
+                    Background = newsFromParse.NewsStructure.Background,
+                    NewsId = news.Id
+                };
+
+
+
+                news.NewsStructure = newsStructure;
+                news.Category = category;
+                news.Subcategory = subcategory;
+
+                News = News == null ? new HashSet<News> { news } : News.Append(news);
+                NewsStructures = NewsStructures == null ? new HashSet<NewsStructure> { newsStructure } : NewsStructures.Append(newsStructure);
+
+                Categories = Categories.Select(c =>
+                {
+                    if (c.Subcategories == null)
+                        c.Subcategories = new HashSet<Subcategory> { subcategory };
+                    else if (c.Id.Equals(subcategory.CategoryId))
+                    {
+                        if (!c.Subcategories.Select(c => c.Name).Contains(subcategory.Name))
+                            c.Subcategories = c.Subcategories.Append(subcategory);
+                    }
+
+                    return c;
+                });
+
+            }
+
+            Categories = Categories.Select(c =>
+            {
+                c.News = News.Where(n => n.CategoryId.Equals(c.Id));
+                return c;
+            });
+
+            Subcategories = Subcategories.Select(s =>
+            {
+                s.News = News.Where(n => n.SubcategoryId.Equals(s.Id));
+                return s;
+            });
+           */
         }
 
-        public IEnumerable<Category> Categories { get; set; }
-
-        public IEnumerable<Comment> Comments { get; set; }
-
-        public IEnumerable<News> News { get; set; }
-
-        public IEnumerable<NewsStructure> NewsStructure { get; set; }
-
-        public IEnumerable<Role> Roles { get; set; }
-
-        public IEnumerable<Subcategory> Subcategories { get; set; }
-
-        public IEnumerable<UserRole> UserRoles => throw new NotImplementedException();
-
-        public IEnumerable<User> Users { get; set; }
-
-        public object DeleteMerch(int entityId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SaveMerch(object entity)
-        {
-            throw new NotImplementedException();
-        }
+        public IUnitOfWork UnitOfWork { get; set; }
     }
 }

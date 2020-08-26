@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NewsGatheringService.Core.Abstract;
+using NewsGatheringService.Data.Entities;
 using NewsGatheringService.Domain.Abstract;
 using System;
 using System.Collections.Generic;
@@ -9,14 +11,16 @@ namespace NewsGatheringServiceMVC.Components
 {
     public class MenuViewComponent : ViewComponent
     {
-        private readonly IRepository _db;
-        public MenuViewComponent(IRepository db)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEnumerable<Category> _categories;
+        public MenuViewComponent(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
+            _categories = _unitOfWork.CategoryRepository.GetAllAsync().Result;
         }
         public IViewComponentResult Invoke()
         {
-            return View("Menu", _db.Categories);
+            return View("Menu", _categories);
         }
     }
 }

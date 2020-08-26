@@ -8,22 +8,23 @@
 @foreach (var news in Model)
 {
     <div class="shadow-sm">
-        @Url.Action()
         <div class="p-3 mb-5 bg-white rounded" style="display: flex">
             @*<div style="width: 250px; height: 250px; background-image: url(@news.NewsHeaderImage);"></div>*@
-            <img style='width:250px; height:250px;' src="data:image/jpeg;base64,@(Convert.ToBase64String(news.NewsHeaderImage))" />
+            <img style='width:250px; height:125px;' src="data:image/jpeg;base64,@(Convert.ToBase64String(news.NewsHeaderImage))" />
             <div style="flex: 1; padding: 15px 30px">
                 <h2>
                     @news.NewsStructure.Headline
                 </h2>
                 <p>@news.NewsStructure.Lead</p>
-                <p>@news.NewsStructure.Body</p>
-                <p>@news.NewsStructure.Background</p>
-                <p><strong>Автор статьи: <em>@news.Author </em><small class="text-muted">@news.Date</small></strong></p>
-                <p><u><a href="#">Источник</a></u></p>
+                <details>
+                    <summary>Читать далее</summary>
+                    <vc:Body body-news=@news.NewsStructure.Body />
+                    <p><strong>Автор статьи: <em>@news.Author </em><small class="text-muted">@news.Date</small></strong></p>
+                    <p><u><a href="@news.Source">Источник</a></u></p>
+                </details>
             </div>
         </div>
-        <h2 class="mx-auto my-5" style="width: 1200px;">Обсуждение</h2>
+        @*<h2 class="mx-auto my-5" style="width: 1200px;">Обсуждение</h2>
         @{ int i = 1;}
 
         @foreach (var comment in news.Comments)
@@ -33,7 +34,7 @@
                     <li class="media">
                         <img src="data:image/jpeg;base64,@(Convert.ToBase64String(comment.User.ProfilePicture))" class="mr-3" alt="...">
 
-                        @*<img src=@comment.User.ProfilePicture class="mr-3" alt="...">*@
+                        <img src=@comment.User.ProfilePicture class="mr-3" alt="...">
                         <div class="media-body">
                             <h5 class="mt-0 mb-1">@comment.User.Login <small class="text-muted">@comment.Date</small></h5>
                             @comment.Body
@@ -43,6 +44,6 @@
                 </ul>
             </div>
             i++;
-        }
+        }*@
     </div>
 }
