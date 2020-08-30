@@ -18,12 +18,14 @@ namespace NewsGatheringServiceMVC.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly INewsService _newsService;
         private readonly ILogger<AdminController> _logger;
+        private readonly List<SyndicationItem> recentDataNews = new List<SyndicationItem>();
 
         public AdminController(IUnitOfWork unitOfWork, INewsService newsService, ILogger<AdminController> logger)
         {
             _unitOfWork = unitOfWork;
             _newsService = newsService;
             _logger = logger;
+
         }
 
         [HttpGet]
@@ -31,18 +33,16 @@ namespace NewsGatheringServiceMVC.Controllers
         {
             try
             {
-                var rssData = new List<SyndicationItem>();
                 var newsDb = await _unitOfWork.NewsRepository.GetAllAsync();
 
-                foreach (var syndicationItem in _newsService.GetDataFromRss())
+                foreach (var syndicationItem in _newsService.GetNewsDataFromRss())
                 {
                     if (newsDb.Any(n => n.Source.Equals(syndicationItem.Id)))
                         continue;
-                    rssData.Add(syndicationItem);
+                    recentDataNews.Add(syndicationItem);
                 }
 
-
-                var recentNews = rssData.Select(i => new RecentNews(i));
+                var recentNews = recentDataNews.Select(i => new RecentNews(i));
                 return View(recentNews);
             }
             catch (Exception ex)
@@ -52,13 +52,22 @@ namespace NewsGatheringServiceMVC.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> AddNewsToDb(string[] newsIds)
+        public async Task<IActionResult> AddNewsToDb(string[] newsUrls)
         {
             try
             {
-                await _newsService.GetDataFromRssAndInsertIntoDb();
-                TempData["message"] = "Новости успешно сохранены";
-                return RedirectToAction("Index");
+                var newsForDb = _newsService.GetNewsDataFromRss().Join(newsUrls,
+                    nd => nd.Id,
+                    nUrl => nUrl,
+                    (nd, nUrl) => nd);
+
+                if (newsForDb.Count() != 0)
+                {
+                    await _newsService.InsertNewsIntoDb(newsForDb.ToArray());
+                    //TempData["message"] = "Новости успешно сохранены";
+                }
+                return Ok();
+                //return RedirectToAction("Index");
             }
             catch (Exception ex)
             {

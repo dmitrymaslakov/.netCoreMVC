@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringService.Data",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringService.Core", "NewsGatheringService.Core\NewsGatheringService.Core.csproj", "{2965066C-9E8C-4C7E-B38D-9D26EC516734}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsCollector", "NewsCollector\NewsCollector.csproj", "{CD02620A-DFD4-4F02-B6AF-01C996D8AD1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsCollector", "NewsCollector\NewsCollector.csproj", "{CD02620A-DFD4-4F02-B6AF-01C996D8AD1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

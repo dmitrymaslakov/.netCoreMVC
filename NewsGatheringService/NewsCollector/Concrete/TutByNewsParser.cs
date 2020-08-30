@@ -13,98 +13,108 @@ namespace NewsCollector.Concrete
 {
     public class TutByNewsParser : ITutByNewsParser
     {
+
         public News Parse(string newsUrl)
         {
-            var web = new HtmlWeb();
-            var htmlDoc = web.Load(newsUrl);
-
-            var htmlDocNode = htmlDoc.DocumentNode;
-
-            DateTime.TryParse(htmlDocNode
-                .SelectSingleNode("//meta[@property='article:published_time']")
-                .Attributes["content"].Value, out var date);
-
-            var source = newsUrl;
-
-            var author = string.Join("/", htmlDocNode
-                .SelectNodes("//span[@itemprop='author']")
-                .Select(n => n.SelectSingleNode("//span[@itemprop='name']"))
-                .Select(n => n.InnerText));
-                
-                
-
-            var headerImage = ImageUrlToByte(htmlDocNode
-                .SelectSingleNode("//meta[@property='twitter:image']")
-                .Attributes["content"].Value);
-
-            int.TryParse(htmlDocNode
-                .SelectNodes("//div[@class='rate-button']")?
-                .Where(n => {
-                    var s = n.QuerySelector("span.icon-smile-like");
-                    return s != null;
-                })?
-                .FirstOrDefault()?
-                .QuerySelector("span.rate-value")?
-                .InnerText, out var views);
-
-            var reputation = NewsEstimate(views);
-
-            var category = htmlDocNode
-                .QuerySelector("div.b-nav")?
-                .QuerySelector("li.active")?
-                .QuerySelector("a")?
-                .InnerText ?? "";
-
-            var subcategory = ""; 
-
-            var headline = htmlDocNode
-                .QuerySelector("h1")
-                .InnerText;
-
-            headline = Regex.Replace(headline, "<[^>]+>|&nbsp;", "").Trim();
-
-            var lead = "";
-
-            var pOrh2Elements = htmlDocNode
-                .SelectSingleNode("//div[@id='article_body']")
-                .FirstChild;
-
-            var body = new StringBuilder();
-
-            var nextElement = pOrh2Elements?.NextSibling;
-            do
+            try
             {
-                if (nextElement.Name.Equals("p") || nextElement.Name.Equals("h2"))
+                var web = new HtmlWeb();
+                var htmlDoc = web.Load(newsUrl);
+
+                var htmlDocNode = htmlDoc.DocumentNode;
+
+                DateTime.TryParse(htmlDocNode
+                    .SelectSingleNode("//meta[@property='article:published_time']")?
+                    .Attributes["content"].Value, out var date);
+
+                var source = newsUrl;
+
+                var author = string.Join("/", htmlDocNode
+                    .SelectNodes("//span[@itemprop='author']")
+                    .Select(n => n.SelectSingleNode("//span[@itemprop='name']"))
+                    .Select(n => n.InnerText));
+
+
+
+                var headerImage = ImageUrlToByte(htmlDocNode
+                    .SelectSingleNode("//meta[@property='twitter:image']")
+                    .Attributes["content"].Value);
+
+                int.TryParse(htmlDocNode
+                    .SelectNodes("//div[@class='rate-button']")?
+                    .Where(n =>
+                    {
+                        var s = n.QuerySelector("span.icon-smile-like");
+                        return s != null;
+                    })?
+                    .FirstOrDefault()?
+                    .QuerySelector("span.rate-value")?
+                    .InnerText, out var views);
+
+                var reputation = NewsEstimate(views);
+
+                var category = htmlDocNode
+                    .QuerySelector("div.b-nav")?
+                    .QuerySelector("li.active")?
+                    .QuerySelector("a")?
+                    .InnerText ?? "Без категории";
+
+                var subcategory = "";
+
+                var headline = htmlDocNode
+                    .QuerySelector("h1")
+                    .InnerText;
+
+                headline = Regex.Replace(headline, "<[^>]+>|&nbsp;|&laquo;|&raquo;|&mdash;|&bdquo;|&ldquo;", " ").Trim();
+
+                var lead = "";
+
+                var pOrh2Elements = htmlDocNode
+                    .SelectSingleNode("//div[@id='article_body']")
+                    .FirstChild;
+
+                var body = new StringBuilder();
+
+                var nextElement = pOrh2Elements?.NextSibling;
+                do
                 {
-                    body.Append(nextElement.OuterHtml);
-                }
-                nextElement = nextElement.NextSibling;
+                    if (nextElement.Name.Equals("p") || nextElement.Name.Equals("h2"))
+                    {
+                        body.Append(nextElement.OuterHtml);
+                    }
+                    nextElement = nextElement.NextSibling;
 
-            } while (nextElement != null);
+                } while (nextElement != null);
 
 
-            var bodyStr = Regex.Replace(body.ToString(), "<[^>]+>", string.Empty);
+                var bodyStr = Regex.Replace(body.ToString(), "<[^>]+>", string.Empty);
 
-            var news = new News
-            {
-                Id = Guid.NewGuid(),
-                Date = date,
-                Source = source,
-                Author = author,
-                NewsHeaderImage = headerImage,
-                Reputation = reputation,
-                NewsStructure = new NewsStructure
+                var news = new News
                 {
                     Id = Guid.NewGuid(),
-                    Headline = headline,
-                    Lead = string.IsNullOrEmpty(lead) ? "" : lead,
-                    Body = bodyStr
-                },
-                Category = new Category { Id = Guid.NewGuid(), Name = category },
-                Subcategory = new Subcategory { Id = Guid.NewGuid(), Name = subcategory }
-            };
+                    Date = date,
+                    Source = source,
+                    Author = author,
+                    NewsHeaderImage = headerImage,
+                    Reputation = reputation,
+                    NewsStructure = new NewsStructure
+                    {
+                        Id = Guid.NewGuid(),
+                        Headline = headline,
+                        Lead = string.IsNullOrEmpty(lead) ? "" : lead,
+                        Body = bodyStr
+                    },
+                    Category = new Category { Id = Guid.NewGuid(), Name = category },
+                    Subcategory = new Subcategory { Id = Guid.NewGuid(), Name = subcategory }
+                };
 
-            return news;
+                return news;
+            }
+            catch
+            {
+
+                throw;
+            }
 
         }
 

@@ -1,49 +1,14 @@
-﻿@model IEnumerable<News>
+﻿@model NewsModelConfigure
 
-@{
-    ViewData["Title"] = "Home Page";
-}
+@{ ViewData["Title"] = "Home Page"; }
 
+@await Component.InvokeAsync("Menu")
 
-@foreach (var news in Model)
-{
-    <div class="shadow-sm">
-        <div class="p-3 mb-5 bg-white rounded" style="display: flex">
-            @*<div style="width: 250px; height: 250px; background-image: url(@news.NewsHeaderImage);"></div>*@
-            <img style='width:250px; height:125px;' src="data:image/jpeg;base64,@(Convert.ToBase64String(news.NewsHeaderImage))" />
-            <div style="flex: 1; padding: 15px 30px">
-                <h2>
-                    @news.NewsStructure.Headline
-                </h2>
-                <p>@news.NewsStructure.Lead</p>
-                <details>
-                    <summary>Читать далее</summary>
-                    <vc:Body body-news=@news.NewsStructure.Body />
-                    <p><strong>Автор статьи: <em>@news.Author </em><small class="text-muted">@news.Date</small></strong></p>
-                    <p><u><a href="@news.Source">Источник</a></u></p>
-                </details>
-            </div>
-        </div>
-        @*<h2 class="mx-auto my-5" style="width: 1200px;">Обсуждение</h2>
-        @{ int i = 1;}
-
-        @foreach (var comment in news.Comments)
-        {
-            <div class="mx-auto" style="width: 1200px;">
-                <ul class="list-unstyled">
-                    <li class="media">
-                        <img src="data:image/jpeg;base64,@(Convert.ToBase64String(comment.User.ProfilePicture))" class="mr-3" alt="...">
-
-                        <img src=@comment.User.ProfilePicture class="mr-3" alt="...">
-                        <div class="media-body">
-                            <h5 class="mt-0 mb-1">@comment.User.Login <small class="text-muted">@comment.Date</small></h5>
-                            @comment.Body
-                            <hr />
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            i++;
-        }*@
-    </div>
-}
+@{ await Html.RenderPartialAsync("_IndexItemsPart", Model); }
+<div id="IndexItemsPart"></div>
+<div id="progress" style="display:none;">
+    <img src="" alt="Loading" /> Loading more     products...
+</div>
+<div id="progressmarker"></div>
+<div id="block1" data-psize="@Model.News.Count()" data-ps="@Model.TotalPages" 
+     data-category="@Model.CategoryName" data-subcategory="@Model.SubcategoryName"></div>

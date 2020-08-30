@@ -1,0 +1,6 @@
+﻿@model NewsModelConfigure
+
+@foreach (var news in Model.News)
+{
+    await Html.RenderPartialAsync("_IndexItem", news);
+}

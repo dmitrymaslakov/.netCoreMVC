@@ -9,8 +9,10 @@ namespace NewsCollector.Abstract
 {
     public interface INewsService
     {
-        Task GetDataFromRssAndInsertIntoDb();
-        SyndicationItem[] GetDataFromRss();
+        /*Task GetDataFromRssAndInsertIntoDb();
+        SyndicationItem[] GetDataFromRss();*/
         //void AttemptedToDivideByZero();
+        Task InsertNewsIntoDb(SyndicationItem[] newsData);
+        SyndicationItem[] GetNewsDataFromRss();
     }
 }

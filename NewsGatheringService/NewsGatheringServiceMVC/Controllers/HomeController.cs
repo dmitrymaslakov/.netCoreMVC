@@ -3,13 +3,12 @@ using NewsGatheringService.Core.Abstract;
 using NewsGatheringService.Data.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using NewsCollector.Abstract;
+using NewsGatheringServiceMVC.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NewsGatheringServiceMVC.Controllers
 {
@@ -19,7 +18,8 @@ namespace NewsGatheringServiceMVC.Controllers
         private readonly IEnumerable<News> _news;
         private readonly ILogger<HomeController> _logger;
         private readonly INewsService _newsService;
-
+        const int pageSize = 4;
+        const int firstPage = 1;
 
         public HomeController(IUnitOfWork unitOfWork, ILogger<HomeController> logger, INewsService newsService)
         {
@@ -29,8 +29,8 @@ namespace NewsGatheringServiceMVC.Controllers
             _newsService = newsService;
         }
 
-        //[Authorize(Roles = "admin, user")]
-        public async Task<IActionResult> Index()
+        [Authorize(Roles = "admin, user")]
+        public async Task<IActionResult> Index(string categoryName = null, string subcategoryName = null)
         {
             try
             {
@@ -38,26 +38,50 @@ namespace NewsGatheringServiceMVC.Controllers
                 //return RedirectToAction("Index", "NewsParser");
                 //_newsService.AttemptedToDivideByZero();
                 if (!_news.Any())
-                    await _newsService.GetDataFromRssAndInsertIntoDb();
+                    await _newsService.InsertNewsIntoDb(_newsService.GetNewsDataFromRss());
 
-                return View(_news.OrderByDescending(n => n.Date));
+                var newsConfigire = new NewsModelConfigure(_news)
+                {
+                    CategoryName = categoryName,
+                    SubcategoryName = subcategoryName
+                };
+                newsConfigire.UseFilterCategory();
+                newsConfigire.TotalPages = _news.Count() % pageSize != 0 ? _news.Count() / pageSize + 1 : _news.Count() / pageSize;
+                newsConfigire.ItemsPerPage(pageSize, firstPage);
+                newsConfigire.RecentFirst();
+                return View(newsConfigire);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                _logger.LogInformation(ex.Message);
-                _logger.LogWarning(ex.Message);
-                _logger.LogCritical(ex.Message);                
                 return BadRequest();
             }
+        }
+        public PartialViewResult IndexItemsPart(int page, string categoryName = null, string subcategoryName = null)
+        {
+            /*var arr = newsids.Split(' ');
+            var newsIds = arr.Select(e => new Guid(e));*/
+
+            var newsConfigire = new NewsModelConfigure(_news)
+            {
+                CategoryName = categoryName,
+                SubcategoryName = subcategoryName
+            };
+            newsConfigire.UseFilterCategory();
+            newsConfigire.TotalPages = _news.Count() / pageSize + 1;
+            newsConfigire.ItemsPerPage(pageSize, page);
+            newsConfigire.RecentFirst();
+            return PartialView("_IndexItemsPart", newsConfigire);
         }
         public IActionResult IndexDependingOnCategory(string categoryName, string subcategoryName)
         {
             try
             {
-                var newsResult = string.IsNullOrEmpty(categoryName) 
-                    ? _news.Where(n => n.Subcategory!=null && n.Subcategory.Name.Contains(subcategoryName))
+                var newsResult = string.IsNullOrEmpty(categoryName)
+                    ? _news.Where(n => n.Subcategory != null && n.Subcategory.Name.Contains(subcategoryName))
                     : _news.Where(n => n.Category != null && n.Category.Name.Contains(categoryName));
+
+
                 return View("Index", newsResult);
             }
             catch (Exception ex)

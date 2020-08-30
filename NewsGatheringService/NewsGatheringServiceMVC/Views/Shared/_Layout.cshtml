@@ -19,34 +19,29 @@
 <body>
     <div>
         @if (TempData["message"] != null)
-        {
-            <div class="alert alert-success">@TempData["message"]</div>
-        }
+        {<div class="alert alert-success">@TempData["message"]</div>}
     </div>
 
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand mr-auto" asp-action="Index" asp-controller="Home">Home</a>
-
                 @if (User.IsInRole("admin"))
                 {
                     <a class="navbar-brand mx-auto" asp-action="Index" asp-controller="Admin">Добавить новости</a>
-                }
+                    }
                 <label class="navbar-brand mr-4 mb-0 pt-1">@User.Identity.Name</label>
                 <a class="navbar-brand" asp-action="Logout" asp-controller="Account">Выйти</a>
-
             </div>
         </nav>
     </header>
-
-    @await Component.InvokeAsync("Menu")
     @RenderBody()
     @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>*@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Infinite Scrolling Script.js" asp-append-version="true"></script>
 
 </body>
 </html>

@@ -15,90 +15,98 @@ namespace NewsCollector.Concrete
     {
         public News Parse(string newsUrl)
         {
-            var web = new HtmlWeb();
-            var htmlDoc = web.Load(newsUrl);
-
-            var htmlDocNode = htmlDoc.DocumentNode;
-
-            var b = htmlDocNode
-                .QuerySelector("ul.cols.top")
-                .QuerySelectorAll("span")
-                .Where(e => !e.HasAttributes)
-                .FirstOrDefault()?
-                .InnerText;
-
-            DateTime.TryParse(htmlDocNode
-                .QuerySelector("ul.cols.top")
-                .QuerySelectorAll("span")
-                .Where(e => !e.HasAttributes)
-                .FirstOrDefault()?
-                .InnerText, out var date);
-
-            var source = newsUrl;
-
-            var author = "s13.ru";
-
-            var headerImage = ImageUrlToByte(htmlDocNode
-                .SelectSingleNode("//meta[@property='og:image']")
-                .Attributes["content"].Value);
-
-            int.TryParse(htmlDocNode
-                .SelectSingleNode("//span[@title='Просмотров']")
-                .InnerText
-                .Replace("/n", "").Replace(" ", ""), out var views);
-
-            var reputation = NewsEstimate(views);
-
-            var category = "";
-            
-            var subcategory = "";
-
-            var headline = htmlDocNode
-                .QuerySelector("h1")
-                .InnerText;
-
-            headline = Regex.Replace(headline, "<[^>]+>|&nbsp;", string.Empty).Trim();
-
-
-            var lead = "";
-
-            var body = new StringBuilder();
-
-            var nextElement = htmlDocNode
-                .QuerySelector("h1")
-                .NextSibling;
-            do
+            try
             {
-                if (nextElement.Name.Equals("p") || nextElement.Name.Equals("h2"))
+                var web = new HtmlWeb();
+                var htmlDoc = web.Load(newsUrl);
+
+                var htmlDocNode = htmlDoc.DocumentNode;
+
+                var b = htmlDocNode
+                    .QuerySelector("ul.cols.top")
+                    .QuerySelectorAll("span")
+                    .Where(e => !e.HasAttributes)
+                    .FirstOrDefault()?
+                    .InnerText;
+
+                DateTime.TryParse(htmlDocNode
+                    .QuerySelector("ul.cols.top")
+                    .QuerySelectorAll("span")
+                    .Where(e => !e.HasAttributes)
+                    .FirstOrDefault()?
+                    .InnerText, out var date);
+
+                var source = newsUrl;
+
+                var author = "s13.ru";
+
+                var headerImage = ImageUrlToByte(htmlDocNode
+                    .SelectSingleNode("//meta[@property='og:image']")
+                    .Attributes["content"].Value);
+
+                int.TryParse(htmlDocNode
+                    .SelectSingleNode("//span[@title='Просмотров']")
+                    .InnerText
+                    .Replace("/n", "").Replace(" ", ""), out var views);
+
+                var reputation = NewsEstimate(views);
+
+                var category = "Без категории";
+
+                var subcategory = "";
+
+                var headline = htmlDocNode
+                    .QuerySelector("h1")
+                    .InnerText;
+
+                headline = Regex.Replace(headline, "<[^>]+>|&nbsp;|&laquo;|&raquo;|&mdash;|&bdquo;|&ldquo;", " ").Trim();
+
+
+                var lead = "";
+
+                var body = new StringBuilder();
+
+                var nextElement = htmlDocNode
+                    .QuerySelector("h1")
+                    .NextSibling;
+                do
                 {
-                    body.Append(nextElement.OuterHtml);
-                }
-                nextElement = nextElement.NextSibling;
+                    if (nextElement.Name.Equals("p") || nextElement.Name.Equals("h2"))
+                    {
+                        body.Append(nextElement.OuterHtml);
+                    }
+                    nextElement = nextElement.NextSibling;
 
-            } while (nextElement != null);
+                } while (nextElement != null);
 
-            var bodyStr = Regex.Replace(body.ToString(), "<[^>]+>", string.Empty);
+                var bodyStr = Regex.Replace(body.ToString(), "<[^>]+>", string.Empty);
 
-            var news = new News
-            {
-                Id = Guid.NewGuid(),
-                Date = date,
-                Source = source,
-                Author = author,
-                NewsHeaderImage = headerImage,
-                Reputation = reputation,
-                NewsStructure = new NewsStructure
+                var news = new News
                 {
                     Id = Guid.NewGuid(),
-                    Headline = headline,
-                    Lead = string.IsNullOrEmpty(lead) ? "" : lead,
-                    Body = bodyStr
-                },
-                Category = new Category { Id = Guid.NewGuid(), Name = category },
-                Subcategory = new Subcategory { Id = Guid.NewGuid(), Name = subcategory }
-            };
+                    Date = date,
+                    Source = source,
+                    Author = author,
+                    NewsHeaderImage = headerImage,
+                    Reputation = reputation,
+                    NewsStructure = new NewsStructure
+                    {
+                        Id = Guid.NewGuid(),
+                        Headline = headline,
+                        Lead = string.IsNullOrEmpty(lead) ? "" : lead,
+                        Body = bodyStr
+                    },
+                    Category = new Category { Id = Guid.NewGuid(), Name = category },
+                    Subcategory = new Subcategory { Id = Guid.NewGuid(), Name = subcategory }
+                };
 
-            return news;
+                return news;
+            }
+            catch
+            {
+
+                throw;
+            }
 
         }
 
