@@ -16,6 +16,7 @@ namespace NewsGatheringService.Core.Abstract
         IRepository<Subcategory> SubcategoryRepository { get; }
         IRepository<User> UserRepository { get; }
         IRepository<UserRole> UserRoleRepository { get; }
+        IRepository<RefreshToken> RefreshTokenRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

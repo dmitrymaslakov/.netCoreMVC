@@ -20,5 +20,7 @@ namespace NewsGatheringService.Data.Entities
 
         public IEnumerable<Comment> Comments { get; set; }
         public IEnumerable<UserRole> UserRoles { get; set; }
+        public IEnumerable<RefreshToken> RefreshTokens { get; set; }
+
     }
 }

@@ -10,13 +10,11 @@ namespace NewsGatheringService.Data.Entities
         {
             Subcategories = new HashSet<Subcategory>();
             News = new HashSet<News>();
-            //NewsCategories = new HashSet<NewsCategory>();
         }
 
         public Guid Id { get; set; }
         public string Name { get; set; }
         public IEnumerable<Subcategory> Subcategories { get; set; }
-        //public IEnumerable<NewsCategory> NewsCategories { get; set; }
         public IEnumerable<News> News { get; set; }
     }
 }

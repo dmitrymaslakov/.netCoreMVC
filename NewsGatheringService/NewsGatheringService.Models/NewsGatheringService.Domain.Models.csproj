@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NewsGatheringService.Data\NewsGatheringService.Data.csproj" />
-    <ProjectReference Include="..\NewsGatheringService.Models\NewsGatheringService.Domain.Models.csproj" />
   </ItemGroup>
 
 </Project>

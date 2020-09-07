@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace NewsGatheringServiceMVC
+namespace NewsGatheringServiceWebAPI
 {
     public class Program
     {
@@ -15,6 +19,7 @@ namespace NewsGatheringServiceMVC
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
+
         public static int Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
@@ -44,12 +49,9 @@ namespace NewsGatheringServiceMVC
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
     }
-
 }

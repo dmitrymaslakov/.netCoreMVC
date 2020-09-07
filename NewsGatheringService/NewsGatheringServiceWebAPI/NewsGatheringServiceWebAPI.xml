@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NewsGatheringServiceWebAPI</name>
+    </assembly>
+    <members>
+        <member name="T:NewsGatheringServiceWebAPI.Controllers.AccountController">
+            <summary>
+            Account controller for user registration and authorization.
+            </summary>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Register(NewsGatheringService.Domain.Models.RegisterRequest)">
+            <summary>
+            User registration
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Authenticate(NewsGatheringService.Domain.Models.AuthenticateRequest)">
+            <summary>
+            User authenticate
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.RefreshToken">
+            <summary>
+            RefreshToken
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

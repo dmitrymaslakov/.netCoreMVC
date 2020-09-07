@@ -22,6 +22,8 @@ namespace NewsGatheringService.Domain.Concrete
         public IRepository<Subcategory> SubcategoryRepository { get; }
         public IRepository<User> UserRepository { get; }
         public IRepository<UserRole> UserRoleRepository { get; }
+        public IRepository<RefreshToken> RefreshTokenRepository { get; }
+
 
         public UnitOfWork(NewsAggregatorContext context,
             IRepository<News> newsRepository,
@@ -29,8 +31,9 @@ namespace NewsGatheringService.Domain.Concrete
             IRepository<Subcategory> subcategoryRepository,
             IRepository<NewsStructure> newsStructureRepository,
             IRepository<User> userRepository,
-            IRepository<Role> roleRepository
-            )
+            IRepository<Role> roleRepository,
+            IRepository<RefreshToken> refreshTokenRepository,
+            IRepository<UserRole> userRoleRepository)
         {
             _context = context;
             NewsRepository = newsRepository;
@@ -39,6 +42,8 @@ namespace NewsGatheringService.Domain.Concrete
             NewsStructureRepository = newsStructureRepository;
             UserRepository = userRepository;
             RoleRepository = roleRepository;
+            RefreshTokenRepository = refreshTokenRepository;
+            UserRoleRepository = userRoleRepository;
         }
 
         public async Task<int> SaveChangesAsync()

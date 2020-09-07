@@ -21,8 +21,9 @@ namespace NewsGatheringService.Domain.Abstract
             DbSet = context.Set<T>();
         }
 
-        public virtual async Task<T> GetByIdAsync(Guid id, CancellationToken token)        {
-            
+        public virtual async Task<T> GetByIdAsync(Guid id, CancellationToken token)
+        {
+
             return await DbSet.FirstOrDefaultAsync(news => news.Id.Equals(id), token);
         }
         public virtual async Task<IEnumerable<T>> GetAllAsync()
@@ -47,8 +48,7 @@ namespace NewsGatheringService.Domain.Abstract
 
         public virtual async Task AddAsync(T obj)
         {
-            //var result = 
-                await DbSet.AddAsync(obj);
+            await DbSet.AddAsync(obj);
         }
 
         public virtual async Task AddRangeAsync(IEnumerable<T> objects)
@@ -58,8 +58,7 @@ namespace NewsGatheringService.Domain.Abstract
 
         public void Update(T obj)
         {
-            //var result = 
-                DbSet.Update(obj);
+            DbSet.Update(obj);
         }
 
         public async Task DeleteAsync(Guid id)

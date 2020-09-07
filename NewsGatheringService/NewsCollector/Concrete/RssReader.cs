@@ -24,7 +24,7 @@ namespace NewsCollector.Concrete
                     return news;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 throw;
             }

@@ -27,6 +27,8 @@ namespace NewsGatheringService.Data.ContextDb
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -38,24 +40,6 @@ namespace NewsGatheringService.Data.ContextDb
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            /*string adminRoleName = "admin";
-            string userRoleName = "user";
-
-            string adminLogin = "adminLogin";
-            string adminPassword = "123456";
-
-
-            Role adminRole = new Role { Id = Guid.NewGuid(), Name = adminRoleName };
-            Role userRole = new Role { Id = Guid.NewGuid(), Name = userRoleName };
-            User adminUser = new User 
-            { 
-                Id = Guid.NewGuid(), 
-                Login = adminLogin, 
-                PasswordHash = adminPassword                
-            };
-
-            adminUser.UserRoles = adminUser.UserRoles.Append(new UserRole { RoleId = adminRole.Id, UserId = adminUser.Id });*/
-
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -132,8 +116,6 @@ namespace NewsGatheringService.Data.ContextDb
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
-
-                //entity.HasData(new Role[] { adminRole, userRole });
             });
 
             modelBuilder.Entity<Subcategory>(entity =>
@@ -159,9 +141,8 @@ namespace NewsGatheringService.Data.ContextDb
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.PasswordHash).HasMaxLength(50);
-
-                //entity.HasData(new User[] { adminUser });
+                entity.Property(e => e.PasswordHash)
+                    .IsRequired();
             });
 
             modelBuilder.Entity<UserRole>(entity =>
@@ -184,6 +165,16 @@ namespace NewsGatheringService.Data.ContextDb
                 //entity.HasData(userRoles.ToArray());
             });
 
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RefreshTokens)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RefreshTokens_Users");
+            });
 
             OnModelCreatingPartial(modelBuilder);
         }

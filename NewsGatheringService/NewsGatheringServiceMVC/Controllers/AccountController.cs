@@ -6,10 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NewsGatheringService.Core.Abstract;
+using NewsGatheringService.Data.ContextDb;
 using NewsGatheringService.Data.Entities;
+using NewsGatheringService.Domain.Models;
 using NewsGatheringServiceMVC.Models;
 
 namespace NewsGatheringServiceMVC.Controllers
@@ -18,11 +21,14 @@ namespace NewsGatheringServiceMVC.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountController> _logger;
+        private readonly IUserService _userService;
+        const string errorMessage = "Username or password is incorrect";
 
-        public AccountController(IUnitOfWork unitOfWork, ILogger<AccountController> logger)
+        public AccountController(IUnitOfWork unitOfWork, ILogger<AccountController> logger, IUserService userService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -41,13 +47,10 @@ namespace NewsGatheringServiceMVC.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterModel model)
+        public async Task<IActionResult> Register(RegisterRequest model)
         {
-
-            const string userRoleName = "user";
             try
             {
-
                 if (ModelState.IsValid)
                 {
                     User user = _unitOfWork.UserRepository?
@@ -56,11 +59,10 @@ namespace NewsGatheringServiceMVC.Controllers
 
                     if (user == null)
                     {
-                        user = new User
+                        /*user = new User
                         {
                             Id = Guid.NewGuid(),
                             Login = model.Login,
-                            ProfilePicture = model.ProfilePicture
                         };
 
                         var passwordToBytes = Encoding.UTF8.GetBytes(model.Password);
@@ -68,7 +70,7 @@ namespace NewsGatheringServiceMVC.Controllers
 
                         user.PasswordHash = enText;
 
-                        Role userRole = _unitOfWork.RoleRepository.FindBy(r => r.Name == userRoleName).FirstOrDefault();
+                        Role userRole = _unitOfWork.RoleRepository.FindBy(r => r.Name == "user").FirstOrDefault();
                         if (userRole != null)
                             user.UserRoles =
                                 user.UserRoles
@@ -77,14 +79,13 @@ namespace NewsGatheringServiceMVC.Controllers
 
                         await _unitOfWork.UserRepository.AddAsync(user);
 
-                        await _unitOfWork.SaveChangesAsync();
-
-                        await Authenticate(user, userRoleName);
-
+                        await _unitOfWork.SaveChangesAsync();*/
+                        await _userService.RegisterUser(model);
+                        await Authenticate(user);
                         return RedirectToAction("Index", "Home");
                     }
                     else
-                        ModelState.AddModelError("", "Некорректные логин и(или) пароль");
+                        ModelState.AddModelError("", errorMessage);
                 }
                 return View(model);
             }
@@ -127,8 +128,6 @@ namespace NewsGatheringServiceMVC.Controllers
             }
 
         }
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
@@ -143,13 +142,7 @@ namespace NewsGatheringServiceMVC.Controllers
 
                     if (user != null)
                     {
-                        var role = _unitOfWork.RoleRepository
-                            .FindBy(r => r.Id.Equals(user.UserRoles.FirstOrDefault().RoleId))
-                            .FirstOrDefault();
-
-                        var userRoleName = role.Name;
-
-                        await Authenticate(user, userRoleName);
+                        await Authenticate(user);
 
                         return RedirectToAction("Index", "Home");
                     }
@@ -164,7 +157,6 @@ namespace NewsGatheringServiceMVC.Controllers
             }
 
         }
-
         public async Task<IActionResult> Logout()
         {
             try
@@ -208,20 +200,34 @@ namespace NewsGatheringServiceMVC.Controllers
 
             await _unitOfWork.SaveChangesAsync();
         }
-        private async Task Authenticate(User user, string role)
+        private async Task Authenticate(User user)
         {
+            var role = _unitOfWork.UserRoleRepository
+                .FindBy(ur => ur.UserId.CompareTo(user.Id) == 0, ur => ur.Role)
+                .FirstOrDefault()?
+                .Role;
 
             var login = user.Login;
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, login),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, role)
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name)
             };
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
                 ClaimsIdentity.DefaultRoleClaimType);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
 
         }
+        private void SetCookieToken(string token)
+        {
+            var cookieOptions = new CookieOptions()
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7),
+            };
+            Response.Cookies.Append("refreshToken", token, cookieOptions);
+        }
+
 
     }
 }
