@@ -64,10 +64,8 @@ namespace NewsGatheringServiceMVC.Controllers
                 if (newsForDb.Count() != 0)
                 {
                     await _newsService.InsertNewsIntoDb(newsForDb.ToArray());
-                    //TempData["message"] = "Новости успешно сохранены";
                 }
                 return Ok();
-                //return RedirectToAction("Index");
             }
             catch (Exception ex)
             {

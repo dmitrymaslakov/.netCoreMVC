@@ -58,7 +58,7 @@ namespace NewsGatheringServiceWebAPI.Controllers
         {
             try
             {
-                var response = await _userService.Authenticate(request);
+                var response = await _userService.AuthenticateWithJwtToken(request);
                 if (response == null)
                 {
                     return BadRequest(new { message = "Invalid user or password" });
@@ -77,7 +77,6 @@ namespace NewsGatheringServiceWebAPI.Controllers
         /// <summary>
         /// RefreshToken
         /// </summary>
-        /// <param name="request"></param>
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("refresh-token")]

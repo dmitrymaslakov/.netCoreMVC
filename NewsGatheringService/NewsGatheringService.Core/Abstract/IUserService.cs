@@ -9,7 +9,7 @@ namespace NewsGatheringService.Core.Abstract
     public interface IUserService
     {
         Task<Guid> RegisterUser(RegisterRequest model);
-        Task<AuthenticateResponse> Authenticate(AuthenticateRequest model);
+        Task<AuthenticateResponse> AuthenticateWithJwtToken(AuthenticateRequest model);
         Task<AuthenticateResponse> RefreshToken(string refreshToken);
     }
 }

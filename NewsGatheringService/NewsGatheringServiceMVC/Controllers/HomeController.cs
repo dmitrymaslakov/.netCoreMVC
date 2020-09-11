@@ -18,8 +18,10 @@ namespace NewsGatheringServiceMVC.Controllers
         private readonly IEnumerable<News> _news;
         private readonly ILogger<HomeController> _logger;
         private readonly INewsService _newsService;
+        private readonly int _totalPages;
         const int pageSize = 4;
         const int firstPage = 1;
+
 
         public HomeController(IUnitOfWork unitOfWork, ILogger<HomeController> logger, INewsService newsService)
         {
@@ -27,6 +29,7 @@ namespace NewsGatheringServiceMVC.Controllers
             _news = _unitOfWork.NewsRepository.FindBy(n => n is News, n => n.Category, n => n.Subcategory, n => n.NewsStructure);
             _logger = logger;
             _newsService = newsService;
+            _totalPages = _news.Count() % pageSize != 0 ? _news.Count() / pageSize + 1 : _news.Count() / pageSize;
         }
 
         [Authorize(Roles = "admin, user")]
@@ -46,7 +49,7 @@ namespace NewsGatheringServiceMVC.Controllers
                     SubcategoryName = subcategoryName
                 };
                 newsConfigire.UseFilterCategory();
-                newsConfigire.TotalPages = _news.Count() % pageSize != 0 ? _news.Count() / pageSize + 1 : _news.Count() / pageSize;
+                newsConfigire.TotalPages = _totalPages;
                 newsConfigire.ItemsPerPage(pageSize, firstPage);
                 newsConfigire.RecentFirst();
                 return View(newsConfigire);
@@ -68,7 +71,7 @@ namespace NewsGatheringServiceMVC.Controllers
                 SubcategoryName = subcategoryName
             };
             newsConfigire.UseFilterCategory();
-            newsConfigire.TotalPages = _news.Count() / pageSize + 1;
+            newsConfigire.TotalPages = _totalPages;
             newsConfigire.ItemsPerPage(pageSize, page);
             newsConfigire.RecentFirst();
             return PartialView("_IndexItemsPart", newsConfigire);

@@ -22,7 +22,7 @@ namespace NewsGatheringServiceMVC.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountController> _logger;
         private readonly IUserService _userService;
-        const string errorMessage = "Username or password is incorrect";
+        const string errorMessage = "User already exists";
 
         public AccountController(IUnitOfWork unitOfWork, ILogger<AccountController> logger, IUserService userService)
         {
@@ -80,8 +80,12 @@ namespace NewsGatheringServiceMVC.Controllers
                         await _unitOfWork.UserRepository.AddAsync(user);
 
                         await _unitOfWork.SaveChangesAsync();*/
-                        await _userService.RegisterUser(model);
-                        await Authenticate(user);
+                        var userId = await _userService.RegisterUser(model);
+                        user = user = _unitOfWork.UserRepository?                            
+                            .FindBy(u => u.Id.CompareTo(userId) == 0, u => u.UserRoles)
+                            .FirstOrDefault();
+
+                        await AuthenticateWithCookie(user);
                         return RedirectToAction("Index", "Home");
                     }
                     else
@@ -142,7 +146,7 @@ namespace NewsGatheringServiceMVC.Controllers
 
                     if (user != null)
                     {
-                        await Authenticate(user);
+                        await AuthenticateWithCookie(user);
 
                         return RedirectToAction("Index", "Home");
                     }
@@ -171,6 +175,25 @@ namespace NewsGatheringServiceMVC.Controllers
             }
 
         }
+        private async Task AuthenticateWithCookie(User user)
+        {
+            var role = _unitOfWork.UserRoleRepository
+                .FindBy(ur => ur.UserId.CompareTo(user.Id) == 0, ur => ur.Role)
+                .FirstOrDefault()?
+                .Role;
+
+            var login = user.Login;
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, login),
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name)
+            };
+            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
+                ClaimsIdentity.DefaultRoleClaimType);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+
+        }
+
         private async Task InitializeAdminUserAsync()
         {
             const string adminRoleName = "admin";
@@ -200,34 +223,5 @@ namespace NewsGatheringServiceMVC.Controllers
 
             await _unitOfWork.SaveChangesAsync();
         }
-        private async Task Authenticate(User user)
-        {
-            var role = _unitOfWork.UserRoleRepository
-                .FindBy(ur => ur.UserId.CompareTo(user.Id) == 0, ur => ur.Role)
-                .FirstOrDefault()?
-                .Role;
-
-            var login = user.Login;
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, login),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name)
-            };
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
-                ClaimsIdentity.DefaultRoleClaimType);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
-
-        }
-        private void SetCookieToken(string token)
-        {
-            var cookieOptions = new CookieOptions()
-            {
-                HttpOnly = true,
-                Expires = DateTime.UtcNow.AddDays(7),
-            };
-            Response.Cookies.Append("refreshToken", token, cookieOptions);
-        }
-
-
     }
 }

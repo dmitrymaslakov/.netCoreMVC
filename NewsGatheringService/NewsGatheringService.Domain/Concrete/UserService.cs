@@ -32,7 +32,7 @@ namespace NewsGatheringService.Domain.Concrete
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest model)
+        public async Task<AuthenticateResponse> AuthenticateWithJwtToken(AuthenticateRequest model)
         {
             var user = _unitOfWork.UserRepository
                 .FindBy(u => u.Login.Equals(model.Login))
@@ -116,13 +116,10 @@ namespace NewsGatheringService.Domain.Concrete
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name)
-                /*new Claim(ClaimTypes.Name, login),
-                new Claim(ClaimTypes.Role, role)*/
+                new Claim(ClaimTypes.Name, user.Login),
+                new Claim(ClaimTypes.Role, role.Name)
             };
-            var claimsIdentity = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
-                ClaimsIdentity.DefaultRoleClaimType);
+            var claimsIdentity = new ClaimsIdentity(claims);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
