@@ -33,7 +33,8 @@ namespace NewsGatheringServiceMVC.Controllers
         {
             try
             {
-                var newsDb = await _unitOfWork.NewsRepository.GetAllAsync();
+                var newsDb = //await 
+                    _unitOfWork.NewsRepository.GetAllAsync();
 
                 foreach (var syndicationItem in _newsService.GetNewsDataFromRss())
                 {

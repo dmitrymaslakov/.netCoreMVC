@@ -23,9 +23,8 @@ namespace NewsGatheringService.Core.Abstract
 
         Task DeleteAsync(Guid id);
 
-        Task DeleteRange(IEnumerable<Guid> ids);
+        Task DeleteRange(IQueryable<Guid> ids);
 
-        Task<IEnumerable<T>> GetAllAsync();
-
+        IQueryable<T> GetAllAsync(params Expression<Func<T, object>>[] includesPredicate);
     }
 }

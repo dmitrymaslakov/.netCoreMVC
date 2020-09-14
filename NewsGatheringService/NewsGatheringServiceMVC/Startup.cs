@@ -1,3 +1,5 @@
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +15,7 @@ using NewsGatheringService.Data.Entities;
 using NewsGatheringService.Domain.Concrete;
 using NewsGatheringService.Domain.Concrete.Repositories;
 using Serilog;
+using System;
 using System.Security.Claims;
 
 namespace NewsGatheringServiceMVC
@@ -48,7 +51,6 @@ namespace NewsGatheringServiceMVC
 
             services.AddScoped<IRepository<RefreshToken>, RefreshTokenRepository>();
 
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<INewsService, NewsService>();
             services.AddScoped<IUserService, UserService>();
@@ -57,10 +59,23 @@ namespace NewsGatheringServiceMVC
             services.AddTransient<IOnlinerNewsParser, OnlinerNewsParser>();
             services.AddTransient<Is13NewsParser, S13NewsParser>();
             services.AddTransient<ITutByNewsParser, TutByNewsParser>();
+            services.AddScoped<IAddRecentNewsJob, AddRecentNewsJob>();
+            services.AddHangfire(config =>
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseDefaultTypeSerializer()
+                .UseMemoryStorage());
+            services.AddHangfireServer();
             services.AddControllersWithViews();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app, 
+            IWebHostEnvironment env, 
+            IBackgroundJobClient backgroundJobClient, 
+            IRecurringJobManager recurringJobManager,
+            IServiceProvider serviceProvider
+            )
         {
             if (env.IsDevelopment())
             {
@@ -85,6 +100,13 @@ namespace NewsGatheringServiceMVC
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseHangfireDashboard();
+            recurringJobManager.AddOrUpdate(
+                            "Run every minute",
+                            () => serviceProvider.GetService<IAddRecentNewsJob>().AddNews(),
+                            "26 * * * *"
+                            
+                            );
         }
     }
 }

@@ -26,11 +26,16 @@ namespace NewsGatheringService.Domain.Abstract
 
             return await DbSet.FirstOrDefaultAsync(news => news.Id.Equals(id), token);
         }
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
-        //public virtual IQueryable<T> GetAll()
+        public virtual IQueryable<T> GetAllAsync(params Expression<Func<T, object>>[] includesPredicate)
         {
-            return await DbSet.ToListAsync();
-            //return DbSet.Select(b => b);
+            var result = DbSet.Select(e => e);
+            if (includesPredicate.Any())
+            {
+                result = includesPredicate
+                    .Aggregate(result, (current, include) => current.Include(include));
+            }
+
+            return result;
         }
 
         public virtual IQueryable<T> FindBy(Expression<Func<T, bool>> searchPredicate, params Expression<Func<T, object>>[] includesPredicate)
@@ -66,7 +71,7 @@ namespace NewsGatheringService.Domain.Abstract
             DbSet.Remove(await DbSet.FirstOrDefaultAsync(entity => entity.Id.Equals(id)));
         }
 
-        public async Task DeleteRange(IEnumerable<Guid> ids)
+        public async Task DeleteRange(IQueryable<Guid> ids)
         {
             var set = new List<T>();
             foreach (var id in ids)

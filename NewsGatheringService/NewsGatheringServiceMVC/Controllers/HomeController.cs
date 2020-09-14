@@ -9,17 +9,18 @@ using System.Threading.Tasks;
 using NewsCollector.Abstract;
 using NewsGatheringServiceMVC.Models;
 using Microsoft.AspNetCore.Authorization;
+using NewsGatheringService.Data.Abstract;
 
 namespace NewsGatheringServiceMVC.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IEnumerable<News> _news;
+        private readonly IQueryable<News> _news;
         private readonly ILogger<HomeController> _logger;
         private readonly INewsService _newsService;
         private readonly int _totalPages;
-        const int pageSize = 4;
+        const int pageSize = 5;
         const int firstPage = 1;
 
 
@@ -32,14 +33,13 @@ namespace NewsGatheringServiceMVC.Controllers
             _totalPages = _news.Count() % pageSize != 0 ? _news.Count() / pageSize + 1 : _news.Count() / pageSize;
         }
 
-        [Authorize(Roles = "admin, user")]
+        //[Authorize(Roles = "admin, user")]
         public async Task<IActionResult> Index(string categoryName = null, string subcategoryName = null)
         {
             try
             {
                 //return RedirectToAction("Index", "Admin");
                 //return RedirectToAction("Index", "NewsParser");
-                //_newsService.AttemptedToDivideByZero();
                 if (!_news.Any())
                     await _newsService.InsertNewsIntoDb(_newsService.GetNewsDataFromRss());
 

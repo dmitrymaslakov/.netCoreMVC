@@ -20,7 +20,7 @@ namespace NewsCollector.Concrete
                     {
                         item.SourceFeed = feed;
                     }
-                    var news = feed.Items.ToArray();
+                    var news = feed.Items.Take(3).ToArray();
                     return news;
                 }
             }
