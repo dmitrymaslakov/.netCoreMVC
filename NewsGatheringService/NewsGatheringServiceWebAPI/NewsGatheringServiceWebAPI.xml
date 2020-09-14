@@ -27,7 +27,30 @@
             <summary>
             RefreshToken
             </summary>
-            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.AdminController.AddLatestNewsToDb(System.String[])">
+            <summary>
+            Add latest news to database.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.AdminController.LatestNewsIndex">
+            <summary>
+            Displays an index of the latest news.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.GetNews">
+            <summary>
+            Returns all the news in the database
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.GetNewsByCategory(System.String,System.String)">
+            <summary>
+            Returns all the news in the database by category/subcategory 
+            </summary>
             <returns></returns>
         </member>
     </members>

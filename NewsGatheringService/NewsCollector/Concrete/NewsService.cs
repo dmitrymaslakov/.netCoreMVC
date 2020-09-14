@@ -37,91 +37,13 @@ namespace NewsCollector.Concrete
             _tutByNewsParser = tutByNewsParser;
         }
 
-        /*public void AttemptedToDivideByZero()
-        {
-            var i = 0;
-            var res = 1 / i;
-        }*/
-
-        /*public async Task GetDataFromRssAndInsertIntoDb(string[] newsIds = null)
-        {
-            var newsSet = new List<News>();
-            try
-            {
-                var rssData = GetDataFromRss();
-                var newsDb = await _unitOfWork.NewsRepository.GetAllAsync();
-                var i = 1;
-                foreach (var syndicationItem in rssData)
-                {
-
-                    if (newsDb.Any(n => n.Source.Equals(syndicationItem.Id)))
-                        continue;              
-                    
-                    News news = null;
-                    if (syndicationItem.Id.Contains(onliner))
-                        news = _onlinerNewsParser.Parse(syndicationItem.Id);
-                    else if (syndicationItem.Id.Contains(s13))
-                        news = _s13NewsParser.Parse(syndicationItem.Id);
-                    else if (syndicationItem.Id.Contains(tut))
-                        news = _tutByNewsParser.Parse(syndicationItem.Id);
-
-                    newsSet.Add(news);
-                    i++;
-                }
-
-                await _unitOfWork.CategoryRepository.AddRangeAsync(newsSet
-                    .GroupBy(n => n.Category.Name)
-                    .Select(gr => gr.First().Category));
-
-                await _unitOfWork.SaveChangesAsync();
-
-                await _unitOfWork.SubcategoryRepository.AddRangeAsync(newsSet
-                    .Where(n => !string.IsNullOrEmpty(n.Subcategory.Name))
-                    .Select(n =>
-                    {
-                        n.Subcategory.Category = _unitOfWork.CategoryRepository
-                    .FindBy(c => c.Name.Equals(n.Category.Name)).FirstOrDefault();
-                        return n.Subcategory;
-                    }));
-                await _unitOfWork.SaveChangesAsync();
-
-                await _unitOfWork.NewsRepository.AddRangeAsync(newsSet.Select(n =>
-                {
-                    n.Category = _unitOfWork.CategoryRepository.FindBy(c => c.Name.Equals(n.Category.Name)).FirstOrDefault();
-                    n.Subcategory = _unitOfWork.SubcategoryRepository.FindBy(s => s.Name.Equals(n.Subcategory.Name)).FirstOrDefault();
-                    return n;
-                }));
-                await _unitOfWork.SaveChangesAsync();
-
-            }
-            catch (Exception ex)
-            {
-                var exMess = ex.Message;
-            }
-        }*/
-
-        /*public SyndicationItem[] GetDataFromRss()
-        {
-            var newsDataFromRss = new ConcurrentBag<SyndicationItem>();
-
-            Parallel.ForEach(SourceStorage.RssFeeds, parallelOptions: new ParallelOptions() { MaxDegreeOfParallelism = 3 },
-                s =>
-                {
-                    var items = _rssReader.GetNewsDataFromRssFeed(s);
-                    Parallel.ForEach(items, item =>
-                    {
-                        if (item.Id.Contains(s13) || item.Id.Contains(onliner) || item.Id.Contains(tut))
-                            newsDataFromRss.Add(item);
-                    });
-                });
-            return newsDataFromRss.ToArray();
-        }*/
         public async Task InsertNewsIntoDb(SyndicationItem[] newsData)
         {
             var newsSet = new List<News>();
             try
             {
-                var newsDb = await _unitOfWork.NewsRepository.GetAllAsync();
+                var newsDb = //await 
+                    _unitOfWork.NewsRepository.GetAllAsync();
                 var i = 1;
                 foreach (var newsItem in newsData)
                 {
@@ -144,7 +66,7 @@ namespace NewsCollector.Concrete
                     .Select(gr => gr.First().Category)
                     .Where(c =>
                     {
-                        var cRep = _unitOfWork.CategoryRepository.GetAllAsync().Result;
+                        var cRep = _unitOfWork.CategoryRepository.GetAllAsync();//.Result;
                         return !cRep.Any() || !cRep.Select(c => c.Name).Any(c2 => c2.Equals(c.Name));
                     }));
 
@@ -154,7 +76,7 @@ namespace NewsCollector.Concrete
                     .Where(n => !string.IsNullOrEmpty(n.Subcategory.Name))
                     .Where(n =>
                     {
-                        var scRep = _unitOfWork.SubcategoryRepository.GetAllAsync().Result;
+                        var scRep = _unitOfWork.SubcategoryRepository.GetAllAsync();//.Result;
                         if (scRep.Any())
                         {
                             var b = scRep.Select(sc => sc.Name).Any(cs2 => cs2.Equals(n.Subcategory.Name));

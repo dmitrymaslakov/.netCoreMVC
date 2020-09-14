@@ -1,20 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NewsCollector.Abstract;
@@ -25,6 +21,7 @@ using NewsGatheringService.Data.Entities;
 using NewsGatheringService.Domain.Concrete;
 using NewsGatheringService.Domain.Concrete.Repositories;
 using NewsGatheringService.Domain.Models;
+using NewsGatheringServiceWebAPI.Models;
 
 namespace NewsGatheringServiceWebAPI
 {
@@ -45,6 +42,15 @@ namespace NewsGatheringServiceWebAPI
             services.AddDbContext<NewsAggregatorContext>(options =>
                 options.UseSqlServer(defaultConnection));
 
+            // Auto Mapper Configurations
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new MappingProfile());
+            });
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
+            services.AddMediatR(typeof(Startup));
             services.AddCors();
             services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 

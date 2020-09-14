@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 using NewsCollector.Abstract;
 using NewsGatheringServiceMVC.Models;
 using Microsoft.AspNetCore.Authorization;
+using NewsGatheringService.Data.Abstract;
 
 namespace NewsGatheringServiceMVC.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IEnumerable<News> _news;
+        private readonly IQueryable<News> _news;
         private readonly ILogger<HomeController> _logger;
         private readonly INewsService _newsService;
         private readonly int _totalPages;

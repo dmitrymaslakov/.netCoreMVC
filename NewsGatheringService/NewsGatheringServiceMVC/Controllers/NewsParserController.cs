@@ -21,19 +21,23 @@ namespace NewsGatheringServiceMVC.Controllers
 
         public async Task<string> Index()
         {
-            await _unitOfWork.NewsStructureRepository.DeleteRange(_unitOfWork.NewsStructureRepository.GetAllAsync().Result.Select(ns => ns.Id));
+            await _unitOfWork.NewsStructureRepository.DeleteRange(_unitOfWork.NewsStructureRepository.GetAllAsync()//.Result
+                .Select(ns => ns.Id));
 
             await _unitOfWork.SaveChangesAsync();
 
-            await _unitOfWork.NewsRepository.DeleteRange(_unitOfWork.NewsRepository.GetAllAsync().Result.Select(n => n.Id));
+            await _unitOfWork.NewsRepository.DeleteRange(_unitOfWork.NewsRepository.GetAllAsync()//.Result
+                .Select(n => n.Id));
 
             await _unitOfWork.SaveChangesAsync();
 
-            await _unitOfWork.SubcategoryRepository.DeleteRange(_unitOfWork.SubcategoryRepository.GetAllAsync().Result.Select(s => s.Id));
+            await _unitOfWork.SubcategoryRepository.DeleteRange(_unitOfWork.SubcategoryRepository.GetAllAsync()//.Result
+                .Select(s => s.Id));
 
             await _unitOfWork.SaveChangesAsync();
 
-            await _unitOfWork.CategoryRepository.DeleteRange(_unitOfWork.CategoryRepository.GetAllAsync().Result.Select(c => c.Id));
+            await _unitOfWork.CategoryRepository.DeleteRange(_unitOfWork.CategoryRepository.GetAllAsync()//.Result
+                .Select(c => c.Id));
 
             await _unitOfWork.SaveChangesAsync();
 

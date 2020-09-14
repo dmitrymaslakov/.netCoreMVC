@@ -26,11 +26,16 @@ namespace NewsGatheringService.Domain.Abstract
 
             return await DbSet.FirstOrDefaultAsync(news => news.Id.Equals(id), token);
         }
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
-        //public virtual IQueryable<T> GetAll()
+        public virtual IQueryable<T> GetAllAsync(params Expression<Func<T, object>>[] includesPredicate)
         {
-            return await DbSet.ToListAsync();
-            //return DbSet.Select(b => b);
+            var result = DbSet.Select(e => e);
+            if (includesPredicate.Any())
+            {
+                result = includesPredicate
+                    .Aggregate(result, (current, include) => current.Include(include));
+            }
+
+            return result;
         }
 
         public virtual IQueryable<T> FindBy(Expression<Func<T, bool>> searchPredicate, params Expression<Func<T, object>>[] includesPredicate)

@@ -5,13 +5,10 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NewsCollector.Abstract
+namespace NewsGatheringService.Core.Abstract
 {
     public interface INewsService
     {
-        /*Task GetDataFromRssAndInsertIntoDb();
-        SyndicationItem[] GetDataFromRss();*/
-        //void AttemptedToDivideByZero();
         Task InsertNewsIntoDb(SyndicationItem[] newsData);
         SyndicationItem[] GetNewsDataFromRss();
     }

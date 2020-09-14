@@ -10,8 +10,8 @@
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         @foreach (var category in Model)
         {
-        <div class="dropdown show">
-            
+            <div class="dropdown show">
+
                 <a onclick="location.href = 'Home/Index/?categoryName=@category.Name'"
                    asp-controller="Home" asp-action="Index" asp-route-categoryName=@category.Name
                    type="button"
@@ -27,7 +27,7 @@
                         }
                     </div>
                 }
-        </div>
+            </div>
         }
     </div>
 </nav>

@@ -11,8 +11,8 @@ namespace NewsGatheringServiceMVC.Models
         public string CategoryName { get; set; }
         public string SubcategoryName { get; set; }
         public int TotalPages { get; set; }
-        public IEnumerable<News> News { get; set; }
-        public NewsModelConfigure(IEnumerable<News> news)
+        public IQueryable<News> News { get; set; }
+        public NewsModelConfigure(IQueryable<News> news)
         {
             News = news;
         }
