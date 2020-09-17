@@ -74,8 +74,12 @@ namespace NewsGatheringServiceMVC
             IWebHostEnvironment env, 
             IBackgroundJobClient backgroundJobClient, 
             IRecurringJobManager recurringJobManager,
+<<<<<<< HEAD
             IServiceProvider serviceProvider
             )
+=======
+            IServiceProvider serviceProvider)
+>>>>>>> b30352d04517ebb7143bbd20c83db4458751190d
         {
             if (env.IsDevelopment())
             {
@@ -104,7 +108,11 @@ namespace NewsGatheringServiceMVC
             recurringJobManager.AddOrUpdate(
                             "Run every minute",
                             () => serviceProvider.GetService<IAddRecentNewsJob>().AddNews(),
+<<<<<<< HEAD
                             "26 * * * *"
+=======
+                            "* * * * *"
+>>>>>>> b30352d04517ebb7143bbd20c83db4458751190d
                             
                             );
         }

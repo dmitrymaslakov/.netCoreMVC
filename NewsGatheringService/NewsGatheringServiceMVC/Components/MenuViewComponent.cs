@@ -13,8 +13,13 @@ namespace NewsGatheringServiceMVC.Components
     {
         private readonly IUnitOfWork _unitOfWork;
 
+<<<<<<< HEAD
         //public IEnumerable<Category> Categories;
         public IQueryable<Category> Categories;
+=======
+        public IEnumerable<Category> Categories;
+        //public IQueryable<Category> Categories;
+>>>>>>> b30352d04517ebb7143bbd20c83db4458751190d
 
         public MenuViewComponent(IUnitOfWork unitOfWork)
         {
@@ -26,7 +31,11 @@ namespace NewsGatheringServiceMVC.Components
         //private async Task GetCategory()
         {
             //Categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+<<<<<<< HEAD
             Categories = _unitOfWork.CategoryRepository.GetAllAsync(c => c.Subcategories);//.Result;
+=======
+            Categories = _unitOfWork.CategoryRepository.GetAllAsync();//.Result;
+>>>>>>> b30352d04517ebb7143bbd20c83db4458751190d
             var list = Categories.Select(c => c.Name).ToList();
 
         }
