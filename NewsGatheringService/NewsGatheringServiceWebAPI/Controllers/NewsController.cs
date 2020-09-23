@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NewsGatheringService.Core.Abstract;
-using NewsGatheringService.Data.Entities;
-using NewsGatheringServiceWebAPI.Models;
+using NewsGatheringService.BLL.DTO;
+using NewsGatheringService.BLL.Interfaces;
 using NewsGatheringServiceWebAPI.Queries;
 
 namespace NewsGatheringServiceWebAPI.Controllers
@@ -23,14 +20,12 @@ namespace NewsGatheringServiceWebAPI.Controllers
         private readonly ILogger<NewsController> _logger;
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
 
         public NewsController(ILogger<NewsController> logger, IMediator mediator, IMapper mapper, IUserService userService)
         {
             _logger = logger;
             _mediator = mediator;
             _mapper = mapper;
-            _userService = userService;
         }
         /// <summary>
         /// Returns all the news in the database

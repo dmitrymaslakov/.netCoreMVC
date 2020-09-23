@@ -1,11 +1,10 @@
 ﻿using MediatR;
-using NewsGatheringService.Core.Abstract;
-using NewsGatheringService.Data.Entities;
 using NewsGatheringServiceWebAPI.Queries;
 using System.Threading;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NewsGatheringService.DAL.Entities;
+using NewsGatheringService.DAL.Interfaces;
 
 namespace NewsGatheringServiceWebAPI.Handlers
 {

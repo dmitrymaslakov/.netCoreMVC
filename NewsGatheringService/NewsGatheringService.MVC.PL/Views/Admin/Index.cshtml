@@ -1,0 +1,56 @@
+﻿@model IEnumerable<NewsGatheringService.MVC.PL.Models.RecentNews>
+
+@{ ViewData["Title"] = "Index"; }
+<div class="container">
+    <h1>Список свежих новостей</h1>
+
+    <table class="table table-checks">
+        <thead>
+            <tr>
+                <th scope="col">
+                    <input type="checkbox" class="custom-control-input" id="all" />
+                    <label class="custom-control-label" for="all">
+                        @Html.DisplayNameFor(model => model.Title)
+                    </label>
+
+                </th>
+                <th scope="col">
+                    @Html.DisplayNameFor(model => model.Source)
+                </th>
+                <th scope="col">
+                    @Html.DisplayNameFor(model => model.Date)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ var i = 1;}
+            @foreach (var item in Model)
+            {
+<tr>
+    <td>
+        <input type="checkbox" class="custom-control-input" id="customCheck_@i">
+        <label class="custom-control-label" for="customCheck_@i">
+            @item.Title
+        </label>
+    </td>
+    <td>
+        @item.Source
+    </td>
+    <td>
+        @item.Date
+    </td>
+    <td>
+        @*@item.SourceUrl*@
+        <a class="source" href="@item.SourceUrl" hidden="hidden"></a>
+    </td>
+</tr>i++;
+            }
+        </tbody>
+    </table>
+        <!-- Спиннер -->
+        <button class="btn btn-primary" type="button" id="js-load">
+            <span class="spinner-grow spinner-grow-sm d-none" role="status" aria-hidden="true"></span>
+            Сохранить
+        </button>
+</div>

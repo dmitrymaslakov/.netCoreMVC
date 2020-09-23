@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NewsGatheringService.Core.Abstract;
-using NewsGatheringService.Domain.Models;
+using NewsGatheringService.BLL.Interfaces;
+using NewsGatheringService.Models.BLL;
 
 namespace NewsGatheringServiceWebAPI.Controllers
 {
@@ -38,7 +36,7 @@ namespace NewsGatheringServiceWebAPI.Controllers
         {
             try
             {
-                var result = await _userService.RegisterUser(request);
+                var result = await _userService.RegisterUserAsync(request);
                 return Created($"/user/{result}", result.ToString("D"));
             }
             catch (Exception ex)

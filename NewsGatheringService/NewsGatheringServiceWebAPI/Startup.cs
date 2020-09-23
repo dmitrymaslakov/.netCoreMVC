@@ -13,15 +13,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using NewsCollector.Abstract;
-using NewsCollector.Concrete;
-using NewsGatheringService.Core.Abstract;
-using NewsGatheringService.Data.ContextDb;
-using NewsGatheringService.Data.Entities;
-using NewsGatheringService.Domain.Concrete;
-using NewsGatheringService.Domain.Concrete.Repositories;
-using NewsGatheringService.Domain.Models;
-using NewsGatheringServiceWebAPI.Models;
+using NewsCollector.BLL.Helpers;
+using NewsCollector.BLL.Interfaces;
+using NewsCollector.BLL.NewsParsers;
+using NewsCollector.BLL.Services;
+using NewsGatheringService.BLL.DTO;
+using NewsGatheringService.BLL.Interfaces;
+using NewsGatheringService.BLL.Services;
+using NewsGatheringService.DAL.ContextDb;
+using NewsGatheringService.DAL.Entities;
+using NewsGatheringService.DAL.Interfaces;
+using NewsGatheringService.DAL.Repositories;
+using NewsGatheringService.Models.BLL;
 
 namespace NewsGatheringServiceWebAPI
 {

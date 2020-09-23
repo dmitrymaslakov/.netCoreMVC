@@ -31,11 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NewsCollector\NewsCollector.csproj" />
-    <ProjectReference Include="..\NewsGatheringService.Core\NewsGatheringService.Core.csproj" />
-    <ProjectReference Include="..\NewsGatheringService.Data\NewsGatheringService.Data.csproj" />
-    <ProjectReference Include="..\NewsGatheringService.Domain\NewsGatheringService.Domain.csproj" />
-    <ProjectReference Include="..\NewsGatheringService.Models\NewsGatheringService.Domain.Models.csproj" />
+    <ProjectReference Include="..\NewsCollector.BLL\NewsCollector.BLL.csproj" />
+    <ProjectReference Include="..\NewsGatheringService.BLL\NewsGatheringService.BLL.csproj" />
+    <ProjectReference Include="..\NewsGatheringService.DAL\NewsGatheringService.DAL.csproj" />
+    <ProjectReference Include="..\NewsGatheringService.Models.BLL\NewsGatheringService.Models.BLL.csproj" />
   </ItemGroup>
 
 

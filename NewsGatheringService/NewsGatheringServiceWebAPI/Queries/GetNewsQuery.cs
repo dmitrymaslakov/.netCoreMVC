@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using NewsGatheringService.Data.Entities;
+using NewsGatheringService.DAL.Entities;
 using System.Linq;
 
 namespace NewsGatheringServiceWebAPI.Queries

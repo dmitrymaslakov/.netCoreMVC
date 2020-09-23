@@ -9,14 +9,14 @@
             Account controller for user registration and authorization.
             </summary>
         </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Register(NewsGatheringService.Domain.Models.RegisterRequest)">
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Register(NewsGatheringService.Models.BLL.RegisterRequest)">
             <summary>
             User registration
             </summary>
             <param name="request"></param>
             <returns></returns>
         </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Authenticate(NewsGatheringService.Domain.Models.AuthenticateRequest)">
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Authenticate(NewsGatheringService.Models.BLL.AuthenticateRequest)">
             <summary>
             User authenticate
             </summary>
