@@ -31,7 +31,7 @@ namespace NewsGatheringService.MVC.PL.Controllers
             _totalPages = _news.Count() % pageSize != 0 ? _news.Count() / pageSize + 1 : _news.Count() / pageSize;
         }
 
-        [Authorize(Roles = "admin, user")]
+        //[Authorize(Roles = "admin, user")]
         public async Task<IActionResult> Index(string categoryName = null, string subcategoryName = null)
         {
             try

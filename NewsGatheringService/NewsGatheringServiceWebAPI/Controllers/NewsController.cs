@@ -12,7 +12,7 @@ using NewsGatheringServiceWebAPI.Queries;
 
 namespace NewsGatheringServiceWebAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NewsController : ControllerBase
@@ -27,6 +27,7 @@ namespace NewsGatheringServiceWebAPI.Controllers
             _mediator = mediator;
             _mapper = mapper;
         }
+        //api/news
         /// <summary>
         /// Returns all the news in the database
         /// </summary>

@@ -10,7 +10,7 @@ namespace NewsGatheringService.BLL.DTO
         public DateTime Date { get; set; }
         public string Source { get; set; }
         public string Author { get; set; }
-        public byte[] NewsHeaderImage { get; set; }
+        public string NewsHeaderImage { get; set; }
         public int Reputation { get; set; }
 
         public NewsStructureDTO NewsStructure { get; set; }

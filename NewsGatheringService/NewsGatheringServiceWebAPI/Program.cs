@@ -51,7 +51,7 @@ namespace NewsGatheringServiceWebAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>().UseUrls("http://localhost:4000");
+                    webBuilder.UseStartup<Startup>().UseUrls();
                 });
     }
 }

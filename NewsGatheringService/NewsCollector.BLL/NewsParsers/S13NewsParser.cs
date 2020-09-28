@@ -59,7 +59,7 @@ namespace NewsCollector.BLL.NewsParsers
                     .QuerySelector("h1")
                     .InnerText;
 
-                headline = Regex.Replace(headline, "<[^>]+>|&nbsp;|&laquo;|&raquo;|&mdash;|&bdquo;|&ldquo;", " ").Trim();
+                headline = Regex.Replace(headline, RegexPattern.Pattern, " ").Trim();
 
 
                 var lead = "";
@@ -79,7 +79,7 @@ namespace NewsCollector.BLL.NewsParsers
 
                 } while (nextElement != null);
 
-                var bodyStr = Regex.Replace(body.ToString(), "<[^>]+>", string.Empty);
+                var bodyStr = Regex.Replace(body.ToString(), RegexPattern.Pattern, " ").Trim();
 
                 var news = new News
                 {

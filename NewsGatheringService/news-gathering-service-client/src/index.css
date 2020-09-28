@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+body {
+  margin: 0;
+  font-family: 'Roboto';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+.post{
+  display: -webkit-flex;
+  display: -ms-flex;
+  display: flex;
+  margin: 20px;
+  box-shadow: 0 0 10px rgba(57, 224, 71, 0.883);
+  height: 20;
+}
+.post__image{
+  flex: 0.3;
+  background-repeat: no-repeat;
+  background-size: 250px 125px;
+  background-position: left;
+}
+.post__info{
+  flex: 1;
+  padding: 15px 30px;
+}
