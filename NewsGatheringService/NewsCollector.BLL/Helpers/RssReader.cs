@@ -1,5 +1,4 @@
 ﻿using NewsCollector.BLL.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Syndication;
@@ -16,11 +15,14 @@ namespace NewsCollector.BLL.Helpers
                 using (var reader = XmlReader.Create(feedUrl))
                 {
                     var feed = SyndicationFeed.Load(reader);
+
                     foreach (var item in feed.Items)
                     {
                         item.SourceFeed = feed;
                     }
-                    var news = feed.Items.Take(10).ToArray();
+
+                    var news = feed.Items.ToArray();
+
                     return news;
                 }
             }

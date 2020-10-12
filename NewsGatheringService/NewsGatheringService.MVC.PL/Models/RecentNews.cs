@@ -20,20 +20,27 @@ namespace NewsGatheringService.MVC.PL.Models
         [Display(Name = "Дата публикации")]
         public DateTime Date { get; set; }
         public string SourceUrl { get; set; }
+        
         public RecentNews(SyndicationItem syndicationItem)
         {
             Title = syndicationItem.Title.Text;
+            
             if (syndicationItem.Id.Contains(onliner))
                 Source = onliner;
+            
             else if (syndicationItem.Id.Contains(s13))
                 Source = s13;
+            
             else if (syndicationItem.Id.Contains(tut))
                 Source = tut;
+            
             else
             {
                 Source = "";
             }
+            
             SourceUrl = syndicationItem.Id;
+            
             Date = syndicationItem.PublishDate.DateTime;
         }
     }

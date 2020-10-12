@@ -1,27 +1,4 @@
 ﻿@model AuthenticateRequest
-@*<h2 class="display-2">Вход на сайт</h2>
-
-    <a class="navbar-brand" asp-action="Register" asp-controller="Account">Регистрация</a>
-
-    <form asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
-        <div class="validation" asp-validation-summary="ModelOnly"></div>
-        <hr>
-        <div>
-            <div class="form-group">
-                <label asp-for="Login">Введите Login</label>
-                <input type="text" asp-for="Login" />
-                <span asp-validation-for="Login" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Password">Введите пароль</label>
-                <input asp-for="Password" />
-                <span asp-validation-for="Password" />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Войти" class="btn" />
-            </div>
-        </div>
-    </form>*@
 
 <h1>Log in</h1>
 <div class="row">
@@ -31,11 +8,6 @@
                 <h4>Вход на сайт</h4>
                 <div class="validation" asp-validation-summary="ModelOnly"></div>
                 <hr>
-                @*<div class="text-danger validation-summary-valid" data-valmsg-summary="true">
-                    <ul>
-                        <li style="display:none"></li>
-                    </ul>
-                </div>*@
                 <div class="form-group">
                     <label asp-for="Login">Введите Login</label>
                     <input class="form-control" asp-for="Login" />

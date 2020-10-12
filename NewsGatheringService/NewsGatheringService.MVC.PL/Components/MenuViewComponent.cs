@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewsGatheringService.DAL.Entities;
-using NewsGatheringService.DAL.Interfaces;
+using NewsGatheringService.UOW.DAL.Interfaces;
 using System.Linq;
 
 namespace NewsGatheringService.MVC.PL.Components
@@ -18,7 +18,7 @@ namespace NewsGatheringService.MVC.PL.Components
         }
         private void GetCategory()
         {
-            Categories = _unitOfWork.CategoryRepository.GetAllAsync(c => c.Subcategories);
+            Categories = _unitOfWork.CategoryRepository.FindBy(null, c => c.Subcategories);
         }
         public IViewComponentResult Invoke()
         {

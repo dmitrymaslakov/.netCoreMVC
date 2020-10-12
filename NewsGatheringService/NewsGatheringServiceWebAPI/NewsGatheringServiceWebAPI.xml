@@ -4,54 +4,104 @@
         <name>NewsGatheringServiceWebAPI</name>
     </assembly>
     <members>
-        <member name="T:NewsGatheringServiceWebAPI.Controllers.AccountController">
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.CategoryController.GetOne(System.String)">
+            <summary>
+            Returns the news category by its name
+            </summary>
+            <param name="name">Category name</param>
+            <returns>Returns the news category by its name or BadRequest if category null</returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.CategoryController.Get">
+            <summary>
+            Returns all categories in the database.
+            </summary>
+            <returns>Returns all categories or BadRequest if categories null</returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.GetOne(System.Guid)">
+            <summary>
+            Returns the one news by id
+            </summary>
+            <param name="id">News id</param>
+            <returns>Returns the news by id or BadRequest if news null</returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.Get(System.Nullable{System.Int32},System.String,System.String)">
+            <summary>
+            Returns all news in the database. The rate, category and subcategory are optional parameters.
+            </summary>
+            <param name="rate"></param>
+            <param name="categoryName"></param>
+            <param name="subcategoryName"></param>
+            <returns>Returns all news based on the specified parameters or BadRequest if news null</returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.AddNewsUrlsToDb(System.String[])">
+            <summary>
+            Add news ulrs to database.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.ParseNews">
+            <summary>
+            Parse news and insert them into database
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.RateNews">
+            <summary>
+            Rate news.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.LatestNewsIndex">
+            <summary>
+            Display an index of the latest news.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.SubcategoryController.GetOne(System.String)">
+            <summary>
+            Returns the news subcategory by its name
+            </summary>
+            <param name="name">Subcategory name</param>
+            <returns>Returns the news subcategory by its name or BadRequest if subcategory null</returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.SubcategoryController.Get(System.String)">
+            <summary>
+            Returns all subcategories in the database. The categoryName is optional parameter.
+            </summary>
+            <param categoryName="categoryName"></param>
+            <returns>Returns all subcategories based on the specified parameters or BadRequest if subcategories null</returns>
+        </member>
+        <member name="T:NewsGatheringServiceWebAPI.Controllers.TokenController">
             <summary>
             Account controller for user registration and authorization.
             </summary>
         </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Register(NewsGatheringService.Models.BLL.RegisterRequest)">
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.TokenController.RefreshToken">
             <summary>
-            User registration
+            Refresh token based on RefreshToken stored in the request cookies
             </summary>
-            <param name="request"></param>
             <returns></returns>
         </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.Authenticate(NewsGatheringService.Models.BLL.AuthenticateRequest)">
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.UserController.GetById(System.Guid)">
+            <summary>
+            Returns the user by id
+            </summary>
+            <param name="id">User id</param>
+            <returns>Return the user by id or BadRequest if user null</returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.UserController.Register(NewsGatheringService.Models.BLL.RegisterRequest)">
+            <summary>
+            User registration. If registration is successful, authentication is performed automatically. 
+            </summary>
+            <param name="request">Contains login and password required for registration</param>
+            <returns>The payload an authenticated user's is returned or BadRequest if the user already exists in db.</returns>
+        </member>
+        <member name="M:NewsGatheringServiceWebAPI.Controllers.UserController.Authenticate(NewsGatheringService.Models.BLL.AuthenticateRequest)">
             <summary>
             User authenticate
             </summary>
-            <param name="request"></param>
-            <returns></returns>
-        </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.AccountController.RefreshToken">
-            <summary>
-            RefreshToken
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.AdminController.AddLatestNewsToDb(System.String[])">
-            <summary>
-            Add latest news to database.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.AdminController.LatestNewsIndex">
-            <summary>
-            Displays an index of the latest news.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.GetNews">
-            <summary>
-            Returns all the news in the database
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:NewsGatheringServiceWebAPI.Controllers.NewsController.GetNewsByCategory(System.String,System.String)">
-            <summary>
-            Returns all the news in the database by category/subcategory 
-            </summary>
-            <returns></returns>
+            <param name="request">Contains login and password required for authentication</param>
+            <returns>The payload an authenticated user's is returned or BadRequest if the user has entered incorrect data.</returns>
         </member>
     </members>
 </doc>

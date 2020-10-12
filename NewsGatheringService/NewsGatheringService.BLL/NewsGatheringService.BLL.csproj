@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NewsGatheringService.DAL\NewsGatheringService.DAL.csproj" />
     <ProjectReference Include="..\NewsGatheringService.Models.BLL\NewsGatheringService.Models.BLL.csproj" />
+    <ProjectReference Include="..\NewsGatheringService.UOW.DAL\NewsGatheringService.UOW.DAL.csproj" />
   </ItemGroup>
 
 </Project>

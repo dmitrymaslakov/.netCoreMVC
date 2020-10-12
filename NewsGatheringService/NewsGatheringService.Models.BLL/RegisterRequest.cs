@@ -6,7 +6,7 @@ namespace NewsGatheringService.Models.BLL
     public class RegisterRequest : SignInDataRequest
     {
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Пароль введен неверно")]
+        [Compare("Password", ErrorMessage = "Incorrect password")]
         public string ConfirmPassword { get; set; }
     }
 }

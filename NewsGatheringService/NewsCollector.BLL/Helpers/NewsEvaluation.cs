@@ -1,4 +1,7 @@
-﻿using NewsGatheringService.DAL.Entities;
+﻿using Microsoft.Extensions.Options;
+using NewsCollector.BLL.Interfaces;
+using NewsGatheringService.DAL.Entities;
+using NewsGatheringService.DAL.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,56 +12,73 @@ using System.Threading.Tasks;
 
 namespace NewsCollector.BLL.Helpers
 {
-    public class NewsEvaluation
+    public class NewsEvaluation : INewsEvaluation
     {
-        private static readonly Dictionary<string, string> _affin;
+        private readonly Dictionary<string, string> _affin;
+        private readonly AppSettings _appSettings;
+        private readonly INewsTextLemmatization _newsTextLemmatization;
 
-        static NewsEvaluation()
+        public NewsEvaluation(IOptions<AppSettings> appSettings, INewsTextLemmatization newsTextLemmatization)
         {
-            using (var r = new StreamReader(@"F:\Разное\Учёба\Программирование Си шарп\It-academy\Projects\NewsGatheringService\NewsCollector.BLL\AFINN-ru.json"))
+            _appSettings = appSettings.Value;
+
+            using (var r = new StreamReader(_appSettings.AFINN_ruFilePath))
             {
                 string json = r.ReadToEnd();
                 _affin = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                 r.Close();
             }
-        }
-        /// <summary>
-        /// Evaluates news based on affin
-        /// </summary>
-        /// <param name="news">News to be evaluated</param>
-        /// <returns>value in the range of -5 to 5</returns>
-        public static async Task<int> EvaluateNewsAsync(News news)
-        {
-            /*var headLemma = await NewsTextLemmatization.RunAsync(news.NewsStructure.Headline);
-            var leadLemma = await NewsTextLemmatization.RunAsync(news.NewsStructure.Lead);*/
-            var bodyLemma = await NewsTextLemmatization.RunAsync(news.NewsStructure.Body);
-            /*var headValue = evaluateLemma(headLemma);
-            var leadValue = evaluateLemma(leadLemma);*/
-            var bodyValue = evaluateLemma(bodyLemma);
-
-            return bodyValue;
+            
+            _newsTextLemmatization = newsTextLemmatization;
         }
 
-        private static int evaluateLemma(string lemma)
+        public async Task<int> EvaluateNewsAsync(News news)
         {
-            if (string.IsNullOrEmpty(lemma)) return 0;
+            try
+            {
+                var bodyLemma = await _newsTextLemmatization.RunAsync(news.NewsStructure.Body);
+                
+                var bodyValue = evaluateLemma(bodyLemma);
+                
+                return bodyValue;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
-            var q =
-                Convert.ToInt32(
-                Math.Ceiling(
-                _affin
-                .Where(kv => !string.IsNullOrEmpty(kv.Key))
-                .Select(kv =>
-                {
-                    var b = Regex.IsMatch(lemma, "\\b" + kv.Key + "\\b");
-                    return b ? int.Parse(kv.Value) : 0;
-                })
-                .Where(v => v != 0)
-                .Average()
-                )
-                )
-                ;
-            return q;
+        private int evaluateLemma(string lemma)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(lemma)) return 0;
+                
+                var marks =
+                     _affin
+                     .Where(kv => !string.IsNullOrEmpty(kv.Key))
+                     .Select(kv =>
+                     {
+                         var b = Regex.IsMatch(lemma, "\\b" + kv.Key + "\\b");
+                         return b ? int.Parse(kv.Value) : 0;
+                     })
+                     .Where(v => v != 0);
+
+                if (marks.Count() == 0 || marks.Average() == 0)
+                    return 1;
+
+                var av = marks.Average();
+
+                if (av > 0)
+                    return Convert.ToInt32(Math.Ceiling(av));
+
+                else
+                    return Convert.ToInt32(Math.Floor(av));
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

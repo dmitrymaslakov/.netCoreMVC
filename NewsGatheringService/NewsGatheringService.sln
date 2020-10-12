@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30128.74
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{6959208B-4C25-4071-978D-B91CFA2E6FF0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringServiceWebAPI", "NewsGatheringServiceWebAPI\NewsGatheringServiceWebAPI.csproj", "{C906D406-E8D6-4FDE-AEBA-ED9F6020ABCA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringService.MVC.PL", "NewsGatheringService.MVC.PL\NewsGatheringService.MVC.PL.csproj", "{2C80308A-8909-46C0-8759-9A82157CE5BA}"
@@ -17,16 +15,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringService.DAL", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringService.Models.BLL", "NewsGatheringService.Models.BLL\NewsGatheringService.Models.BLL.csproj", "{9736A083-DA86-40CF-9E25-0F6218A92F28}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringService.UOW.DAL", "NewsGatheringService.UOW.DAL\NewsGatheringService.UOW.DAL.csproj", "{7A04EB01-E2CE-4694-ACF5-B3C49DF5DA79}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BBL", "BBL", "{EA34560D-86F6-48DB-97A1-E5B7CAC80EBA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{9DEF286C-43A2-4801-B3AD-E9624271C8DC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsGatheringService.CQS.DAL", "NewsGatheringService.CQS.DAL\NewsGatheringService.CQS.DAL.csproj", "{5BC2A8E6-07FE-4D2B-9610-8DF319E7C97D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6959208B-4C25-4071-978D-B91CFA2E6FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6959208B-4C25-4071-978D-B91CFA2E6FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6959208B-4C25-4071-978D-B91CFA2E6FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6959208B-4C25-4071-978D-B91CFA2E6FF0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C906D406-E8D6-4FDE-AEBA-ED9F6020ABCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C906D406-E8D6-4FDE-AEBA-ED9F6020ABCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C906D406-E8D6-4FDE-AEBA-ED9F6020ABCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,9 +53,25 @@ Global
 		{9736A083-DA86-40CF-9E25-0F6218A92F28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9736A083-DA86-40CF-9E25-0F6218A92F28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9736A083-DA86-40CF-9E25-0F6218A92F28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A04EB01-E2CE-4694-ACF5-B3C49DF5DA79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A04EB01-E2CE-4694-ACF5-B3C49DF5DA79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A04EB01-E2CE-4694-ACF5-B3C49DF5DA79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A04EB01-E2CE-4694-ACF5-B3C49DF5DA79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BC2A8E6-07FE-4D2B-9610-8DF319E7C97D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BC2A8E6-07FE-4D2B-9610-8DF319E7C97D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BC2A8E6-07FE-4D2B-9610-8DF319E7C97D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BC2A8E6-07FE-4D2B-9610-8DF319E7C97D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{77056F08-FD3B-4812-A2FA-49301930C093} = {EA34560D-86F6-48DB-97A1-E5B7CAC80EBA}
+		{70E25C74-1A06-432E-8AD7-F0B4F34E4092} = {EA34560D-86F6-48DB-97A1-E5B7CAC80EBA}
+		{F80AB63F-6F8F-4F54-AC82-398327ADA88A} = {9DEF286C-43A2-4801-B3AD-E9624271C8DC}
+		{9736A083-DA86-40CF-9E25-0F6218A92F28} = {EA34560D-86F6-48DB-97A1-E5B7CAC80EBA}
+		{7A04EB01-E2CE-4694-ACF5-B3C49DF5DA79} = {9DEF286C-43A2-4801-B3AD-E9624271C8DC}
+		{5BC2A8E6-07FE-4D2B-9610-8DF319E7C97D} = {9DEF286C-43A2-4801-B3AD-E9624271C8DC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AECB70B2-5852-49C1-9899-D11221754C4D}

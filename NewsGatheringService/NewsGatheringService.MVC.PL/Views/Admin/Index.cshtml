@@ -1,7 +1,13 @@
 ﻿@model IEnumerable<NewsGatheringService.MVC.PL.Models.RecentNews>
 
 @{ ViewData["Title"] = "Index"; }
+
 <div class="container">
+    @if (TempData["message"] != null)
+    {
+        <div class="alert alert-info">@TempData["message"]</div>
+    }
+
     <h1>Список свежих новостей</h1>
 
     <table class="table table-checks">
@@ -41,16 +47,16 @@
         @item.Date
     </td>
     <td>
-        @*@item.SourceUrl*@
         <a class="source" href="@item.SourceUrl" hidden="hidden"></a>
     </td>
-</tr>i++;
-            }
+</tr>
+i++;
+}
         </tbody>
     </table>
-        <!-- Спиннер -->
-        <button class="btn btn-primary" type="button" id="js-load">
-            <span class="spinner-grow spinner-grow-sm d-none" role="status" aria-hidden="true"></span>
-            Сохранить
-        </button>
+    <!-- Спиннер -->
+    <button class="btn btn-primary" type="button" id="js-load">
+        <span class="spinner-grow spinner-grow-sm d-none" role="status" aria-hidden="true"></span>
+        Сохранить
+    </button>
 </div>

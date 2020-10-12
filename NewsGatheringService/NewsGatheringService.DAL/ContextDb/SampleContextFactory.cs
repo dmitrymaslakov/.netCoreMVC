@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using NewsGatheringService.DAL.Models;
 using System;
 using System.IO;
 
@@ -8,6 +10,7 @@ namespace NewsGatheringService.DAL.ContextDb
 {
     public class SampleContextFactory : IDesignTimeDbContextFactory<NewsAggregatorContext>
     {
+        private const string APPSETTINGS_FILE_PATH = @"F:\Разное\Учёба\Программирование Си шарп\It-academy\Projects\NewsGatheringService\NewsGatheringService.MVC.PL\appsettings.json";
         public NewsAggregatorContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<NewsAggregatorContext>();
@@ -16,7 +19,7 @@ namespace NewsGatheringService.DAL.ContextDb
             ConfigurationBuilder builder = new ConfigurationBuilder();
             
             builder.SetBasePath(Directory.GetCurrentDirectory());
-            builder.AddJsonFile(@"F:\Разное\Учёба\Программирование Си шарп\It-academy\Projects\NewsGatheringService\NewsGatheringServiceMVC\appsettings.json");
+            builder.AddJsonFile(APPSETTINGS_FILE_PATH);
             IConfigurationRoot config = builder.Build();
 
             // получаем строку подключения из файла appsettings.json

@@ -33,8 +33,10 @@
   <ItemGroup>
     <ProjectReference Include="..\NewsCollector.BLL\NewsCollector.BLL.csproj" />
     <ProjectReference Include="..\NewsGatheringService.BLL\NewsGatheringService.BLL.csproj" />
+    <ProjectReference Include="..\NewsGatheringService.CQS.DAL\NewsGatheringService.CQS.DAL.csproj" />
     <ProjectReference Include="..\NewsGatheringService.DAL\NewsGatheringService.DAL.csproj" />
     <ProjectReference Include="..\NewsGatheringService.Models.BLL\NewsGatheringService.Models.BLL.csproj" />
+    <ProjectReference Include="..\NewsGatheringService.UOW.DAL\NewsGatheringService.UOW.DAL.csproj" />
   </ItemGroup>
 
 

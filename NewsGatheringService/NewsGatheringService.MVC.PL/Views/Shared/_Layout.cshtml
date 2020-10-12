@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="~/css/MaslakovStyles.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css" crossorigin="anonymous">
     <style>
         @@media only screen and (min-width: 768px) {
             .dropdown:hover .dropdown-menu {
@@ -23,19 +24,21 @@
                 <a class="navbar-brand mr-auto" asp-action="Index" asp-controller="Home">Home</a>
                 @if (User.IsInRole("admin"))
                 {
-                    <a class="navbar-brand mx-auto" asp-action="Index" asp-controller="Admin">Добавить новости</a>
-                    }
+    <a class="navbar-brand mx-auto" asp-action="Index" asp-controller="Admin">Добавить новости</a>}
                 <label class="navbar-brand mr-4 mb-0 pt-1">@User.Identity.Name</label>
                 <a class="navbar-brand" asp-action="Logout" asp-controller="Account">Выйти</a>
             </div>
         </nav>
     </header>
+
     @RenderBody()
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js" crossorigin="anonymous"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/Infinite Scrolling Script.js" asp-append-version="true"></script>
-
+    <script src="~/js/slider.js" asp-append-version="true"></script>
 </body>
 </html>

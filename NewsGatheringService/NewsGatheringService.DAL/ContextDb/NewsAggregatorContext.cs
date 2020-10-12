@@ -22,12 +22,12 @@ namespace NewsGatheringService.DAL.ContextDb
         public DbSet<Comment> Comments { get; set; }
         public DbSet<News> News { get; set; }
         public DbSet<NewsStructure> NewsStructures { get; set; }
+        public DbSet<NewsUrl> NewsUrls { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -71,8 +71,6 @@ namespace NewsGatheringService.DAL.ContextDb
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Source).IsRequired();
-
                 entity.Property(e => e.Author)
                 .IsRequired()
                 .HasMaxLength(150);
@@ -89,12 +87,18 @@ namespace NewsGatheringService.DAL.ContextDb
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_News_Subcategories");
 
-
-                entity.HasOne(d => d.NewsStructure)
+                entity.HasOne(n => n.NewsStructure)
                     .WithOne(p => p.News)
                     .HasForeignKey<NewsStructure>(d => d.NewsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_News_NewsStructures");
+
+                entity.HasOne(n => n.Source)
+                    .WithOne(s => s.News)
+                    .HasForeignKey<NewsUrl>(s => s.NewsId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_News_NewsUrls");
+
             });
 
             modelBuilder.Entity<NewsStructure>(entity =>
@@ -106,6 +110,13 @@ namespace NewsGatheringService.DAL.ContextDb
                 entity.Property(e => e.Headline).IsRequired();
 
                 entity.Property(e => e.Lead).IsRequired();
+            });
+
+            modelBuilder.Entity<NewsUrl>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Url).IsRequired();
             });
 
             modelBuilder.Entity<Role>(entity =>

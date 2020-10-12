@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using NewsCollector.BLL.Interfaces;
-using NewsCollector.BLL.Helpers;
-using NewsGatheringService.DAL.Interfaces;
-using NewsGatheringService.BLL.Interfaces;
 using NewsGatheringService.DAL.Entities;
+using NewsGatheringService.DAL.Models;
+using Microsoft.Extensions.Options;
+using NewsGatheringService.UOW.DAL.Interfaces;
+using System;
 
 namespace NewsCollector.BLL.Services
 {
@@ -20,54 +19,176 @@ namespace NewsCollector.BLL.Services
         private readonly Is13NewsParser _s13NewsParser;
         private readonly ITutByNewsParser _tutByNewsParser;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AppSettings _appSettings;
+        private readonly INewsEvaluation _newsEvaluation;
 
-        const string s13 = "s13.ru";
-        const string onliner = "onliner.by";
-        const string tut = "tut.by";
+        const string S13 = "s13.ru";
+        const string ONLINER = "onliner.by";
+        const string TUT = "tut.by";
+        const string HELPBLOG = "help.blog";
+        const string SPECIALTUT = "special.tut";
 
         public NewsService(
             IRssReader rssReader,
             IOnlinerNewsParser onlinerNewsParser,
             Is13NewsParser s13NewsParser,
-            IUnitOfWork unitOfWork, ITutByNewsParser tutByNewsParser)
+            IUnitOfWork unitOfWork,
+            ITutByNewsParser tutByNewsParser,
+            IOptions<AppSettings> appSettings,
+            INewsEvaluation newsEvaluation)
         {
             _rssReader = rssReader;
             _onlinerNewsParser = onlinerNewsParser;
             _s13NewsParser = s13NewsParser;
             _unitOfWork = unitOfWork;
             _tutByNewsParser = tutByNewsParser;
+            _appSettings = appSettings.Value;
+            _newsEvaluation = newsEvaluation;
         }
 
-        public async Task InsertNewsIntoDb(SyndicationItem[] newsData)
+        public async Task ParseNewsAndInsertIntoDb()
         {
-            var newsSet = new List<News>();
+            var newsSet = new ConcurrentBag<News>();
+
             try
             {
-                var newsDb = //await 
-                    _unitOfWork.NewsRepository.GetAllAsync();
-                var i = 1;
-                foreach (var newsItem in newsData)
+                var dbNewsUrls = _unitOfWork.NewsUrlRepository
+                    .FindBy(null, nu => nu.News)
+                    .Where(nu => nu.News == null)
+                    .Select(nu => nu.Url)
+                    .ToArray();
+
+                if (!dbNewsUrls.Any()) return;
+
+                Parallel.ForEach(dbNewsUrls, new ParallelOptions() { MaxDegreeOfParallelism = 6 }, newsUrl =>
                 {
-                    if (newsDb.Any(n => n.Source.Equals(newsItem)))
-                        continue;
                     News news = null;
-                    if (newsItem.Id.Contains(onliner))
-                        news = await _onlinerNewsParser.ParseAsync(newsItem.Id);
-                    else if (newsItem.Id.Contains(s13))
-                        news = await _s13NewsParser.ParseAsync(newsItem.Id);
-                    else if (newsItem.Id.Contains(tut))
-                        news = await _tutByNewsParser.ParseAsync(newsItem.Id);
 
-                    newsSet.Add(news);
-                    i++;
-                }
+                    if (newsUrl.Contains(ONLINER))
+                        news = _onlinerNewsParser.Parse(newsUrl);
 
+                    else if (newsUrl.Contains(S13))
+                        news = _s13NewsParser.Parse(newsUrl);
+
+                    else if (newsUrl.Contains(TUT) && !newsUrl.Contains(HELPBLOG) && !newsUrl.Contains(SPECIALTUT))
+                    {
+                        news = _tutByNewsParser.Parse(newsUrl);
+                    }
+
+                    if (news != null)
+                        newsSet.Add(news);
+                });
+
+                await AddCategoryAndSubcategoryToDb(newsSet.ToArray());
+
+                await _unitOfWork.NewsRepository.AddRangeAsync(newsSet
+                    .ToArray()
+                    .Select(n =>
+                    {
+                        n.Category = _unitOfWork.CategoryRepository.FindBy(c => c.Name.Equals(n.Category.Name)).FirstOrDefault();
+                        n.Subcategory = _unitOfWork.SubcategoryRepository.FindBy(s => s.Name.Equals(n.Subcategory.Name)).FirstOrDefault();
+                        n.Source = _unitOfWork.NewsUrlRepository.FindBy(url => url.Url.Equals(n.Source.Url)).FirstOrDefault();
+                        return n;
+                    }));
+
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task InsertNewsUrlsToDb(string[] newsUrls)
+        {
+            try
+            {
+                await _unitOfWork.NewsUrlRepository.AddRangeAsync(
+                    newsUrls.Select(url => new NewsUrl { Id = Guid.NewGuid(), Url = url })
+                    );
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public SyndicationItem[] GetNewsData()
+        {
+            var newsDataFromRss = new ConcurrentBag<SyndicationItem>();
+
+            try
+            {
+                var dbNewsUrl = _unitOfWork.NewsUrlRepository.GetAllAsQueryable().ToArray();
+
+                Parallel.ForEach(_appSettings.RssFeeds, new ParallelOptions() { MaxDegreeOfParallelism = 3 },
+                    s =>
+                    {
+                        var items = _rssReader.GetNewsDataFromRssFeed(s);
+
+                        Parallel.ForEach(items, item =>
+                        {
+                            if (item.Id.Contains(S13) || item.Id.Contains(ONLINER) || item.Id.Contains(TUT))
+                                if (dbNewsUrl.Count() == 0 || !dbNewsUrl.Any(nu => nu.Url.Equals(item.Id)))
+                                    newsDataFromRss.Add(item);
+                        });
+                    });
+
+                return newsDataFromRss.ToArray();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task PerformNewsEvaluationAsync()
+        {
+            try
+            {
+                var unratedNewsSet = _unitOfWork.NewsRepository
+                    .FindBy(null, n => n.NewsStructure)
+                    .Where(n => n.Reputation == 0)
+                    .ToArray();
+
+                if (unratedNewsSet.Count() == 0) return;
+
+                var updatedNewSet = new ConcurrentBag<News>();
+
+                Parallel.ForEach(unratedNewsSet, async n =>
+                {
+                    n.Reputation = await _newsEvaluation.EvaluateNewsAsync(n);
+                    updatedNewSet.Add(n);
+                });
+
+                _unitOfWork.NewsRepository.UpdateRange(updatedNewSet.ToArray());
+
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private async Task AddCategoryAndSubcategoryToDb(News[] newsSet)
+        {
+            try
+            {
                 await _unitOfWork.CategoryRepository.AddRangeAsync(newsSet
-                    .GroupBy(n => n.Category.Name)
+                    .GroupBy(n =>
+                    {
+                        if (n == null)
+                        {
+                            var f = newsSet;
+                        }
+                        return n.Category.Name;
+                    })
                     .Select(gr => gr.First().Category)
                     .Where(c =>
                     {
-                        var cRep = _unitOfWork.CategoryRepository.GetAllAsync();//.Result;
+                        var cRep = _unitOfWork.CategoryRepository.GetAllAsQueryable();
                         return !cRep.Any() || !cRep.Select(c => c.Name).Any(c2 => c2.Equals(c.Name));
                     }));
 
@@ -77,7 +198,7 @@ namespace NewsCollector.BLL.Services
                     .Where(n => !string.IsNullOrEmpty(n.Subcategory.Name))
                     .Where(n =>
                     {
-                        var scRep = _unitOfWork.SubcategoryRepository.GetAllAsync();//.Result;
+                        var scRep = _unitOfWork.SubcategoryRepository.GetAllAsQueryable();
                         if (scRep.Any())
                         {
                             var b = scRep.Select(sc => sc.Name).Any(cs2 => cs2.Equals(n.Subcategory.Name));
@@ -94,92 +215,11 @@ namespace NewsCollector.BLL.Services
                     }));
 
                 await _unitOfWork.SaveChangesAsync();
-
-                await _unitOfWork.NewsRepository.AddRangeAsync(newsSet.Select(n =>
-                {
-                    n.Category = _unitOfWork.CategoryRepository.FindBy(c => c.Name.Equals(n.Category.Name)).FirstOrDefault();
-                    n.Subcategory = _unitOfWork.SubcategoryRepository.FindBy(s => s.Name.Equals(n.Subcategory.Name)).FirstOrDefault();
-                    return n;
-                }));
-                await _unitOfWork.SaveChangesAsync();
-
             }
             catch
             {
                 throw;
             }
-        }
-        public SyndicationItem[] GetNewsDataFromRss()
-        {
-            var newsDataFromRss = new ConcurrentBag<SyndicationItem>();
-            try
-            {
-                Parallel.ForEach(SourceStorage.RssFeeds, parallelOptions: new ParallelOptions() { MaxDegreeOfParallelism = 6 },
-                    s =>
-                    {
-                        var items = _rssReader.GetNewsDataFromRssFeed(s);
-                        Parallel.ForEach(items, item =>
-                        {
-                            if (item.Id.Contains(s13) || item.Id.Contains(onliner) || item.Id.Contains(tut))
-                                newsDataFromRss.Add(item);
-                        });
-                    });
-                return newsDataFromRss.ToArray();
-            }
-            catch
-            {
-                throw;
-            }
-        }
-        public SyndicationItem[] GetRecentNewsDataFromRss()
-        {
-            try
-            {
-                var recentDataNews = new List<SyndicationItem>();
-                var newsDb = _unitOfWork.NewsRepository.GetAllAsync();
-                foreach (var syndicationItem in GetNewsDataFromRss())
-                {
-                    if (newsDb.Any(n => n.Source.Equals(syndicationItem.Id)))
-                        continue;
-                    recentDataNews.Add(syndicationItem);
-                }
-                return recentDataNews.ToArray();
-            }
-            catch
-            {
-                throw;
-            }
-
-        }
-
-        public async Task<bool> AddRecentNewsToDbAsync(string[] newsUrls = null)
-        {
-            try {
-                var recentNewsData = GetRecentNewsDataFromRss();
-                if (newsUrls == null)
-                {
-                    await InsertNewsIntoDb(recentNewsData);
-                    return true;
-                }
-                else
-                {
-                    var newsForDb = recentNewsData.Join(newsUrls,
-                        nd => nd.Id,
-                        nUrl => nUrl,
-                        (nd, nUrl) => nd);
-                    if (newsForDb.Count() != 0)
-                    {
-                        await InsertNewsIntoDb(newsForDb.ToArray());
-                        return true;
-                    }
-                    else return false;
-                }
-            }
-            catch
-            {
-                throw;
-            }
-
         }
     }
 }

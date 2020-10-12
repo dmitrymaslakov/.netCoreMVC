@@ -15,11 +15,11 @@ namespace NewsGatheringService.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.Category", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -34,7 +34,7 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.Comment", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.Comment", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -61,7 +61,7 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.News", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.News", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -83,10 +83,6 @@ namespace NewsGatheringService.DAL.Migrations
                     b.Property<int>("Reputation")
                         .HasColumnType("int");
 
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid?>("SubcategoryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -99,7 +95,7 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("News");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.NewsStructure", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.NewsStructure", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -127,7 +123,28 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("NewsStructures");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.RefreshToken", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.NewsUrl", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("NewsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NewsId")
+                        .IsUnique()
+                        .HasFilter("[NewsId] IS NOT NULL");
+
+                    b.ToTable("NewsUrls");
+                });
+
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -157,7 +174,7 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.Role", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -172,7 +189,7 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.Subcategory", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.Subcategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -192,7 +209,7 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("Subcategories");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.User", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -214,7 +231,7 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.UserRole", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -237,71 +254,79 @@ namespace NewsGatheringService.DAL.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.Comment", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.Comment", b =>
                 {
-                    b.HasOne("NewsGatheringService.Data.Entities.News", "News")
+                    b.HasOne("NewsGatheringService.DAL.Entities.News", "News")
                         .WithMany("Comments")
                         .HasForeignKey("NewsId")
                         .HasConstraintName("FK_Comments_News")
                         .IsRequired();
 
-                    b.HasOne("NewsGatheringService.Data.Entities.User", "User")
+                    b.HasOne("NewsGatheringService.DAL.Entities.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_Comments_Users")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.News", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.News", b =>
                 {
-                    b.HasOne("NewsGatheringService.Data.Entities.Category", "Category")
+                    b.HasOne("NewsGatheringService.DAL.Entities.Category", "Category")
                         .WithMany("News")
                         .HasForeignKey("CategoryId")
                         .HasConstraintName("FK_News_Categories")
                         .IsRequired();
 
-                    b.HasOne("NewsGatheringService.Data.Entities.Subcategory", "Subcategory")
+                    b.HasOne("NewsGatheringService.DAL.Entities.Subcategory", "Subcategory")
                         .WithMany("News")
                         .HasForeignKey("SubcategoryId")
                         .HasConstraintName("FK_News_Subcategories");
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.NewsStructure", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.NewsStructure", b =>
                 {
-                    b.HasOne("NewsGatheringService.Data.Entities.News", "News")
+                    b.HasOne("NewsGatheringService.DAL.Entities.News", "News")
                         .WithOne("NewsStructure")
-                        .HasForeignKey("NewsGatheringService.Data.Entities.NewsStructure", "NewsId")
+                        .HasForeignKey("NewsGatheringService.DAL.Entities.NewsStructure", "NewsId")
                         .HasConstraintName("FK_News_NewsStructures")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.RefreshToken", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.NewsUrl", b =>
                 {
-                    b.HasOne("NewsGatheringService.Data.Entities.User", "User")
+                    b.HasOne("NewsGatheringService.DAL.Entities.News", "News")
+                        .WithOne("Source")
+                        .HasForeignKey("NewsGatheringService.DAL.Entities.NewsUrl", "NewsId")
+                        .HasConstraintName("FK_News_NewsUrls");
+                });
+
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("NewsGatheringService.DAL.Entities.User", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_RefreshTokens_Users")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.Subcategory", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.Subcategory", b =>
                 {
-                    b.HasOne("NewsGatheringService.Data.Entities.Category", "Category")
+                    b.HasOne("NewsGatheringService.DAL.Entities.Category", "Category")
                         .WithMany("Subcategories")
                         .HasForeignKey("CategoryId")
                         .HasConstraintName("FK_Subcategories_Categories")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NewsGatheringService.Data.Entities.UserRole", b =>
+            modelBuilder.Entity("NewsGatheringService.DAL.Entities.UserRole", b =>
                 {
-                    b.HasOne("NewsGatheringService.Data.Entities.Role", "Role")
+                    b.HasOne("NewsGatheringService.DAL.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .HasConstraintName("FK_UserRoles_Roles")
                         .IsRequired();
 
-                    b.HasOne("NewsGatheringService.Data.Entities.User", "User")
+                    b.HasOne("NewsGatheringService.DAL.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_UserRoles_Users")

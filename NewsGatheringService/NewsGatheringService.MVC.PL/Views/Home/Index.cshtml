@@ -4,11 +4,21 @@
 
 @await Component.InvokeAsync("Menu")
 
-@{ await Html.RenderPartialAsync("_IndexItemsPart", Model); }
-<div id="IndexItemsPart"></div>
-<div id="progress" style="display:none;">
-    <img src="" alt="Loading" /> Loading more     products...
+@if (User.IsInRole("admin"))
+{
+    <a class="btn btn-info" onclick="window.open('http://localhost:5000/hangfire')">Hangfire dashboard</a>}
+
+<div class="container">
+    <div class="ml-auto" style="width: 220px">
+        <label for="ex7">Репутация</label>
+        <input id="ex7" type="text" data-slider-min="-5" data-slider-max="5" data-slider-step="1" data-slider-value="0" />
+        <button id="apply" class="btn btn-primary">Применить</button>
+    </div>
 </div>
-<div id="progressmarker"></div>
-<div id="block1" data-psize="@Model.News.Count()" data-ps="@Model.TotalPages" 
-     data-category="@Model.CategoryName" data-subcategory="@Model.SubcategoryName"></div>
+<div id="scrolList">
+    @{ await Html.RenderPartialAsync("_IndexItemsPart", Model); }
+</div>
+<div id="loading" class="spinner-border" style="width: 3rem; height: 3rem;" role="status"></div>
+
+<div id="block1" data-category="@Model.CategoryName" data-subcategory="@Model.SubcategoryName"
+     data-rate="@Model.ReputationValue"></div>

@@ -4,41 +4,47 @@ using NewsCollector.BLL.Helpers;
 using NewsCollector.BLL.Interfaces;
 using NewsGatheringService.DAL.Entities;
 using System;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace NewsCollector.BLL.NewsParsers
 {
     public class TutByNewsParser : ITutByNewsParser
     {
-
-        public async Task<News> ParseAsync(string newsUrl)
+        public News Parse(string newsUrl)
         {
             try
             {
                 var web = new HtmlWeb();
+                
                 var htmlDoc = web.Load(newsUrl);
 
                 var htmlDocNode = htmlDoc.DocumentNode;
 
                 DateTime.TryParse(htmlDocNode
-                    .SelectSingleNode("//meta[@property='article:published_time']")?
-                    .Attributes["content"].Value, out var date);
+                    .SelectSingleNode("//meta[@property='article:published_time']")
+                    ?.Attributes["content"].Value, out var date);
 
                 var source = newsUrl;
 
                 var author = string.Join("/", htmlDocNode
                     .SelectNodes("//span[@itemprop='author']")
                     .Select(n => n.SelectSingleNode("//span[@itemprop='name']"))
-                    .Select(n => n.InnerText));
+                    .FirstOrDefault()?.InnerText);
+                    
 
+                if (string.IsNullOrEmpty(author))
+                {
+                    author = htmlDocNode
+                        .SelectNodes("//span[@itemprop='author']")
+                        .Select(n => n.SelectSingleNode("//meta[@itemprop='name']"))
+                        .FirstOrDefault()
+                        ?.Attributes["content"]
+                        .Value;
+                }
 
-
-                var headerImage = ImageUrlToByte(htmlDocNode
+                var headerImage = ImageConvert.ImageUrlToByte(htmlDocNode
                     .SelectSingleNode("//meta[@property='twitter:image']")
                     .Attributes["content"].Value);
 
@@ -70,14 +76,16 @@ namespace NewsCollector.BLL.NewsParsers
                 var lead = "";
 
                 var pOrh2Elements = htmlDocNode
-                    .SelectSingleNode("//div[@id='article_body']")
+                    .SelectSingleNode("//div[@id='article_body']")?
                     .FirstChild;
 
                 var body = new StringBuilder();
 
                 var nextElement = pOrh2Elements?.NextSibling;
+
                 do
                 {
+                    var elName = nextElement.Name;
                     if (nextElement.Name.Equals("p") || nextElement.Name.Equals("h2"))
                     {
                         body.Append(nextElement.OuterHtml);
@@ -86,14 +94,13 @@ namespace NewsCollector.BLL.NewsParsers
 
                 } while (nextElement != null);
 
-
                 var bodyStr = Regex.Replace(body.ToString(), RegexPattern.Pattern, " ").Trim();
 
                 var news = new News
                 {
                     Id = Guid.NewGuid(),
                     Date = date,
-                    Source = source,
+                    Source = new NewsUrl { Url = source },
                     Author = author,
                     NewsHeaderImage = headerImage,
                     NewsStructure = new NewsStructure
@@ -106,28 +113,13 @@ namespace NewsCollector.BLL.NewsParsers
                     Category = new Category { Id = Guid.NewGuid(), Name = category },
                     Subcategory = new Subcategory { Id = Guid.NewGuid(), Name = subcategory }
                 };
-                news.Reputation = await NewsEvaluation.EvaluateNewsAsync(news);
 
                 return news;
             }
             catch
             {
-
                 throw;
             }
-
-        }
-
-        private byte[] ImageUrlToByte(string imageUrl)
-        {
-            var stream = new WebClient().OpenRead(imageUrl);
-            var dataImage = new byte[0];
-            using (var streamReader = new MemoryStream())
-            {
-                stream.CopyTo(streamReader);
-                dataImage = streamReader.ToArray();
-            }
-            return dataImage;
         }
     }
 }

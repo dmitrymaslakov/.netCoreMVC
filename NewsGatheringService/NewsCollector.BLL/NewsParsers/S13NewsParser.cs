@@ -4,22 +4,20 @@ using NewsCollector.BLL.Helpers;
 using NewsCollector.BLL.Interfaces;
 using NewsGatheringService.DAL.Entities;
 using System;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace NewsCollector.BLL.NewsParsers
 {
     public class S13NewsParser : Is13NewsParser
     {
-        public async Task<News> ParseAsync(string newsUrl)
+        public News Parse(string newsUrl)
         {
             try
             {
                 var web = new HtmlWeb();
+                
                 var htmlDoc = web.Load(newsUrl);
 
                 var htmlDocNode = htmlDoc.DocumentNode;
@@ -42,7 +40,7 @@ namespace NewsCollector.BLL.NewsParsers
 
                 var author = "s13.ru";
 
-                var headerImage = ImageUrlToByte(htmlDocNode
+                var headerImage = ImageConvert.ImageUrlToByte(htmlDocNode
                     .SelectSingleNode("//meta[@property='og:image']")
                     .Attributes["content"].Value);
 
@@ -69,6 +67,7 @@ namespace NewsCollector.BLL.NewsParsers
                 var nextElement = htmlDocNode
                     .QuerySelector("h1")
                     .NextSibling;
+                
                 do
                 {
                     if (nextElement.Name.Equals("p") || nextElement.Name.Equals("h2"))
@@ -85,7 +84,7 @@ namespace NewsCollector.BLL.NewsParsers
                 {
                     Id = Guid.NewGuid(),
                     Date = date,
-                    Source = source,
+                    Source = new NewsUrl { Url = source },
                     Author = author,
                     NewsHeaderImage = headerImage,
                     NewsStructure = new NewsStructure
@@ -98,28 +97,14 @@ namespace NewsCollector.BLL.NewsParsers
                     Category = new Category { Id = Guid.NewGuid(), Name = category },
                     Subcategory = new Subcategory { Id = Guid.NewGuid(), Name = subcategory }
                 };
-                news.Reputation = await NewsEvaluation.EvaluateNewsAsync(news);
 
                 return news;
             }
             catch
             {
-
                 throw;
             }
 
-        }
-
-        private byte[] ImageUrlToByte(string imageUrl)
-        {
-            var stream = new WebClient().OpenRead(imageUrl);
-            var dataImage = new byte[0];
-            using (var streamReader = new MemoryStream())
-            {
-                stream.CopyTo(streamReader);
-                dataImage = streamReader.ToArray();
-            }
-            return dataImage;
         }
     }
 }

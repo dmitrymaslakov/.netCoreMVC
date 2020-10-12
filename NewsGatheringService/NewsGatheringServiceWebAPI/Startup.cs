@@ -22,9 +22,9 @@ using NewsGatheringService.BLL.Interfaces;
 using NewsGatheringService.BLL.Services;
 using NewsGatheringService.DAL.ContextDb;
 using NewsGatheringService.DAL.Entities;
-using NewsGatheringService.DAL.Interfaces;
-using NewsGatheringService.DAL.Repositories;
-using NewsGatheringService.Models.BLL;
+using NewsGatheringService.UOW.DAL.Repositories;
+using NewsGatheringService.UOW.DAL.Interfaces;
+using NewsGatheringService.DAL.Models;
 
 namespace NewsGatheringServiceWebAPI
 {
@@ -50,18 +50,25 @@ namespace NewsGatheringServiceWebAPI
             {
                 cfg.AddProfile(new MappingProfile());
             });
+            
             IMapper mapper = mapperConfig.CreateMapper();
+            
             services.AddSingleton(mapper);
 
             services.AddMediatR(typeof(Startup));
+            
             services.AddCors();
+            
             services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
             var appSettingsSection = Configuration.GetSection("AppSettings");
+            
             services.Configure<AppSettings>(appSettingsSection);
-            // configure jwt authentication
+
             var appSettings = appSettingsSection.Get<AppSettings>();
+            
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -89,24 +96,41 @@ namespace NewsGatheringServiceWebAPI
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 sa.IncludeXmlComments(xmlPath);
             });
+            
             services.AddScoped<IRepository<News>, NewsRepository>();
+            
             services.AddScoped<IRepository<NewsStructure>, NewsStructureRepository>();
+            
+            services.AddScoped<IRepository<NewsUrl>, NewsUrlRepository>();
+            
             services.AddScoped<IRepository<Category>, CategoryRepository>();
+            
             services.AddScoped<IRepository<Subcategory>, SubcategoryRepository>();
+            
             services.AddScoped<IRepository<User>, UserRepository>();
+            
             services.AddScoped<IRepository<Role>, RoleRepository>();
+            
             services.AddScoped<IRepository<UserRole>, UserRoleRepository>();
-
+            
             services.AddScoped<IRepository<RefreshToken>, RefreshTokenRepository>();
 
-
+            services.AddScoped<INewsEvaluation, NewsEvaluation>();
+            
+            services.AddScoped<INewsTextLemmatization, NewsTextLemmatization>();
+            
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            
             services.AddScoped<INewsService, NewsService>();
+            
             services.AddScoped<IUserService, UserService>();
-
+            
             services.AddTransient<IRssReader, RssReader>();
+            
             services.AddTransient<IOnlinerNewsParser, OnlinerNewsParser>();
+            
             services.AddTransient<Is13NewsParser, S13NewsParser>();
+            
             services.AddTransient<ITutByNewsParser, TutByNewsParser>();
 
         }
@@ -122,7 +146,7 @@ namespace NewsGatheringServiceWebAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            // global cors policy
+
             app.UseCors(x => x
                 .SetIsOriginAllowed(origin => true)
                 .AllowAnyMethod()
@@ -137,6 +161,7 @@ namespace NewsGatheringServiceWebAPI
             });
 
             app.UseAuthentication();
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
